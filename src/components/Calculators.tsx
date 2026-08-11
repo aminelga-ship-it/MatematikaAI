@@ -118,6 +118,58 @@ function BooleanCell({ value }: { value: boolean }) {
   );
 }
 
+function ComparisonTable({ model }: { model: CalculatorModel }) {
+  const rows = [
+    ...comparisonRows.map((row) => ({
+      label: row.label,
+      value: row.key(model),
+    })),
+    ...(model.features.otherLabel && model.features.other
+      ? [{ label: model.features.otherLabel, value: model.features.other }]
+      : []),
+    { label: 'Kaina', value: model.price, isPrice: true },
+  ];
+
+  return (
+    <div className="rounded-2xl ring-1 ring-slate-200 overflow-hidden divide-y divide-slate-200">
+      {rows.map((row, i) => {
+        const isBoolean = typeof row.value === 'boolean';
+        const isPrice = 'isPrice' in row && row.isPrice;
+
+        return (
+          <div
+            key={row.label}
+            className={`flex items-start justify-between gap-3 px-3 py-3 sm:px-4 sm:py-3 ${
+              i % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'
+            }`}
+          >
+            <span
+              className={`min-w-0 flex-1 text-sm leading-snug ${
+                isPrice ? 'font-semibold text-slate-700' : 'text-slate-600'
+              }`}
+            >
+              {row.label}
+            </span>
+            <div className="shrink-0 max-w-[48%] sm:max-w-[45%] text-right">
+              {isBoolean ? (
+                <BooleanCell value={row.value as boolean} />
+              ) : (
+                <span
+                  className={`block text-sm leading-snug ${
+                    isPrice ? 'font-bold text-lg sm:text-xl text-slate-900' : 'font-medium text-slate-800'
+                  }`}
+                >
+                  {row.value as string}
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function ImageLightbox({ image, onClose }: { image: CalculatorImage; onClose: () => void }) {
   return (
     <div
@@ -220,7 +272,7 @@ export default function Calculators({ onBack }: CalculatorsProps) {
   const [activeModel, setActiveModel] = useState<CalculatorModel | null>(null);
 
   return (
-    <div className="min-h-[80vh] px-6 py-16">
+    <div className="min-h-[80vh] px-4 py-10 sm:px-6 sm:py-16">
       <div className="max-w-6xl mx-auto">
         <button
           onClick={onBack}
@@ -234,7 +286,7 @@ export default function Calculators({ onBack }: CalculatorsProps) {
           <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-blue-200">
             <Info className="w-7 h-7" />
           </div>
-          <h1 className="text-4xl font-bold text-slate-900">Skaičiuotuvų palyginimas</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900">Skaičiuotuvų palyginimas</h1>
         </div>
         <p className="text-slate-500 text-lg max-w-2xl mb-12">
           Palyginkite du populiariausius skaičiuotuvus ir pasirinkite tinkamiausią.
@@ -246,7 +298,7 @@ export default function Calculators({ onBack }: CalculatorsProps) {
               key={model.id}
               className="group flex flex-col rounded-3xl bg-white ring-1 ring-slate-200 shadow-sm hover:shadow-xl hover:ring-blue-200 transition-all duration-300 overflow-hidden"
             >
-              <div className="p-7">
+              <div className="p-4 sm:p-7">
                 <button
                   onClick={() => setActiveModel(model)}
                   className="w-full text-left hover:bg-slate-50/50 transition-colors rounded-2xl"
@@ -281,41 +333,8 @@ export default function Calculators({ onBack }: CalculatorsProps) {
                 </p>
               </div>
 
-              <div className="px-7 pb-7 flex flex-col flex-1">
-                <div className="rounded-2xl ring-1 ring-slate-200 overflow-hidden">
-                  <table className="w-full text-sm">
-                    <tbody>
-                      {comparisonRows.map((row, i) => (
-                        <tr key={row.label} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'}>
-                          <td className="px-4 py-3 text-slate-600 align-top whitespace-nowrap">{row.label}</td>
-                          <td className="px-4 py-3 text-right align-top">
-                            {typeof row.key(model) === 'boolean' ? (
-                              <BooleanCell value={row.key(model) as boolean} />
-                            ) : (
-                              <span className="font-medium text-slate-800">{row.key(model) as string}</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                      {model.features.otherLabel && model.features.other && (
-                        <tr className="bg-slate-50/60">
-                          <td className="px-4 py-3 text-slate-600 align-top whitespace-nowrap">
-                            {model.features.otherLabel}
-                          </td>
-                          <td className="px-4 py-3 text-right align-top">
-                            <span className="font-medium text-slate-800 text-left block">
-                              {model.features.other}
-                            </span>
-                          </td>
-                        </tr>
-                      )}
-                      <tr className="bg-slate-50/60">
-                        <td className="px-4 py-3 font-semibold text-slate-700">Kaina</td>
-                        <td className="px-4 py-3 text-right font-bold text-xl text-slate-900">{model.price}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+              <div className="px-4 pb-6 sm:px-7 sm:pb-7 flex flex-col flex-1">
+                <ComparisonTable model={model} />
 
                 <button className="mt-6 inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-colors">
                   <ShoppingCart className="w-5 h-5" />
