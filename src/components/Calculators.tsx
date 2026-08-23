@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Check, X, ShoppingCart, Info, ZoomIn, Loader2 } from 'lucide-react';
-import { createCheckoutSession } from '@/lib/checkout';
+import { ArrowLeft, Check, X, ShoppingCart, Info, ZoomIn } from 'lucide-react';
+import CheckoutModal from '@/components/CheckoutModal';
 
 type CalculatorImage = {
   src: string;
@@ -268,7 +268,7 @@ function Modal({ model, onClose }: { model: CalculatorModel; onClose: () => void
 
 export default function Calculators() {
   const [activeModel, setActiveModel] = useState<CalculatorModel | null>(null);
-  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [checkoutModel, setCheckoutModel] = useState<CalculatorModel | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const paymentStatus = searchParams.get('success')
@@ -283,16 +283,9 @@ export default function Calculators() {
     return () => clearTimeout(timer);
   }, [paymentStatus, setSearchParams]);
 
-  const handleOrder = async (model: CalculatorModel) => {
+  const handleOrder = (model: CalculatorModel) => {
     setError(null);
-    setLoadingId(model.id);
-    try {
-      const url = await createCheckoutSession(model.id);
-      window.location.href = url;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nepavyko pradėti apmokėjimo');
-      setLoadingId(null);
-    }
+    setCheckoutModel(model);
   };
 
   return (
@@ -310,7 +303,7 @@ export default function Calculators() {
           <div className="mb-8 rounded-2xl bg-emerald-50 ring-1 ring-emerald-200 px-5 py-4 text-emerald-800">
             <p className="font-semibold">Apmokėjimas sėkmingas!</p>
             <p className="mt-1 text-sm text-emerald-700">
-              Ačiū už užsakymą. Netrukus susisieksime dėl pristatymo.
+              Ačiū už užsakymą. Siuntą išsiųsime į jūsų pasirinktą LP Express paštomatą.
             </p>
           </div>
         )}
@@ -387,15 +380,10 @@ export default function Calculators() {
 
                 <button
                   onClick={() => handleOrder(model)}
-                  disabled={loadingId !== null}
-                  className="mt-6 inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="mt-6 inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-colors"
                 >
-                  {loadingId === model.id ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <ShoppingCart className="w-5 h-5" />
-                  )}
-                  {loadingId === model.id ? 'Ruošiama...' : 'Užsakyti'}
+                  <ShoppingCart className="w-5 h-5" />
+                  Užsakyti
                 </button>
               </div>
             </div>
@@ -404,6 +392,18 @@ export default function Calculators() {
       </div>
 
       {activeModel && <Modal model={activeModel} onClose={() => setActiveModel(null)} />}
+
+      {checkoutModel && (
+        <CheckoutModal
+          calculatorId={checkoutModel.id}
+          calculatorName={checkoutModel.name}
+          onClose={() => setCheckoutModel(null)}
+          onError={(message) => {
+            setError(message);
+            setCheckoutModel(null);
+          }}
+        />
+      )}
     </div>
   );
 }
