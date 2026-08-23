@@ -11,33 +11,66 @@ type CheckoutModalProps = {
   onError: (message: string) => void;
 };
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phonePattern = /^\+?[0-9\s\-()]{8,20}$/;
+
 export default function CheckoutModal({
   calculatorId,
   calculatorName,
   onClose,
   onError,
 }: CheckoutModalProps) {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [terminal, setTerminal] = useState<LpExpressTerminal | null>(null);
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  const validate = (): string | null => {
+    if (!firstName.trim()) return 'Įveskite gavėjo vardą';
+    if (!lastName.trim()) return 'Įveskite gavėjo pavardę';
+    if (!phone.trim()) return 'Įveskite telefono numerį';
+    if (!phonePattern.test(phone.trim())) return 'Įveskite teisingą telefono numerį';
+    if (!email.trim()) return 'Įveskite el. paštą';
+    if (!emailPattern.test(email.trim())) return 'Įveskite teisingą el. paštą';
+    if (!terminal) return 'Pasirinkite LP Express paštomatą';
+    return null;
+  };
+
   const handlePay = async () => {
-    if (!terminal) {
-      setValidationError('Pasirinkite LP Express paštomatą');
+    const error = validate();
+    if (error) {
+      setValidationError(error);
       return;
     }
+
+    if (!terminal) return;
 
     setValidationError(null);
     setLoading(true);
 
     try {
-      const url = await createCheckoutSession(calculatorId, terminal);
+      const url = await createCheckoutSession({
+        calculatorId,
+        recipient: {
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          phone: phone.trim(),
+          email: email.trim(),
+        },
+        terminal,
+      });
       window.location.href = url;
     } catch (err) {
       onError(err instanceof Error ? err.message : 'Nepavyko pradėti apmokėjimo');
       setLoading(false);
     }
   };
+
+  const inputClassName =
+    'w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-800 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200';
 
   return (
     <div
@@ -60,8 +93,59 @@ export default function CheckoutModal({
           <h2 className="text-2xl font-bold text-slate-900">Užsakymas</h2>
           <p className="mt-2 text-slate-500">{calculatorName}</p>
 
-          <div className="mt-6">
-            <LpExpressWidget value={terminal} onChange={setTerminal} />
+          <div className="mt-6 space-y-4">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-600">Vardas</span>
+                <input
+                  type="text"
+                  autoComplete="given-name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className={inputClassName}
+                  placeholder="Jonas"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-600">Pavardė</span>
+                <input
+                  type="text"
+                  autoComplete="family-name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className={inputClassName}
+                  placeholder="Jonaitis"
+                />
+              </label>
+            </div>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-slate-600">Telefonas</span>
+              <input
+                type="tel"
+                autoComplete="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className={inputClassName}
+                placeholder="+37060000000"
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-slate-600">El. paštas</span>
+              <input
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={inputClassName}
+                placeholder="vardas@email.lt"
+              />
+            </label>
+
+            <div className="pt-2 border-t border-slate-100">
+              <LpExpressWidget value={terminal} onChange={setTerminal} />
+            </div>
           </div>
 
           {validationError && (

@@ -9,6 +9,11 @@ const CALCULATOR_PRICES: Record<string, string | undefined> = {
   'fx-991-ex': process.env.STRIPE_PRICE_EX,
 };
 
+const CALCULATOR_NAMES: Record<string, string> = {
+  'fx-991-es': 'FX-991 ES 2nd edition',
+  'fx-991-ex': 'FX-991 EX ClassWiz',
+};
+
 type TerminalPayload = {
   id: string;
   code: string;
@@ -17,6 +22,16 @@ type TerminalPayload = {
   address: string;
   comment?: string;
 };
+
+type RecipientPayload = {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+};
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phonePattern = /^\+?[0-9\s\-()]{8,20}$/;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -28,15 +43,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Stripe is not configured' });
   }
 
-  const { calculatorId, terminal } = req.body as {
+  const { calculatorId, terminal, recipient } = req.body as {
     calculatorId?: string;
     terminal?: TerminalPayload;
+    recipient?: RecipientPayload;
   };
 
   const priceId = calculatorId ? CALCULATOR_PRICES[calculatorId] : undefined;
 
-  if (!priceId) {
+  if (!priceId || !calculatorId) {
     return res.status(400).json({ error: 'Invalid calculator' });
+  }
+
+  if (!recipient?.firstName?.trim() || !recipient?.lastName?.trim()) {
+    return res.status(400).json({ error: 'Įveskite gavėjo vardą ir pavardę' });
+  }
+
+  if (!recipient.phone?.trim() || !phonePattern.test(recipient.phone.trim())) {
+    return res.status(400).json({ error: 'Įveskite teisingą telefono numerį' });
+  }
+
+  if (!recipient.email?.trim() || !emailPattern.test(recipient.email.trim())) {
+    return res.status(400).json({ error: 'Įveskite teisingą el. paštą' });
   }
 
   if (!terminal?.id || !terminal.city || !terminal.address) {
@@ -44,20 +72,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const origin = req.headers.origin ?? 'http://localhost:5173';
+  const firstName = recipient.firstName.trim();
+  const lastName = recipient.lastName.trim();
+  const phone = recipient.phone.trim();
+  const email = recipient.email.trim();
 
   try {
     const stripe = new Stripe(secretKey);
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
+      customer_email: email,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${origin}/skaiciuotuvai?success=true`,
+      success_url: `${origin}/skaiciuotuvai?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/skaiciuotuvai?canceled=true`,
       metadata: {
-        calculatorId: calculatorId ?? '',
+        calculatorId,
+        calculatorName: CALCULATOR_NAMES[calculatorId] ?? calculatorId,
+        recipientFirstName: firstName,
+        recipientLastName: lastName,
+        recipientPhone: phone,
+        recipientEmail: email,
         terminalId: terminal.id,
         terminalCode: terminal.code,
         terminalCity: terminal.city,
-        terminalAddress: terminal.address,
+        terminalAddress: terminal.address.slice(0, 450),
         terminalName: terminal.name,
       },
     });

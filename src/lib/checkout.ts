@@ -1,13 +1,10 @@
-import type { LpExpressTerminal } from '@/types/lpExpress';
+import type { CheckoutPayload } from '@/types/checkout';
 
-export async function createCheckoutSession(
-  calculatorId: string,
-  terminal: LpExpressTerminal,
-): Promise<string> {
+export async function createCheckoutSession(payload: CheckoutPayload): Promise<string> {
   const response = await fetch('/api/create-checkout-session', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ calculatorId, terminal }),
+    body: JSON.stringify(payload),
   });
 
   const data = (await response.json()) as { url?: string; error?: string };

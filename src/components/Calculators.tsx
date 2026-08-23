@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Check, X, ShoppingCart, Info, ZoomIn } from 'lucide-react';
 import CheckoutModal from '@/components/CheckoutModal';
+import { confirmPaidOrder } from '@/lib/confirmOrder';
 
 type CalculatorImage = {
   src: string;
@@ -271,11 +272,22 @@ export default function Calculators() {
   const [checkoutModel, setCheckoutModel] = useState<CalculatorModel | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const confirmAttempted = useRef(false);
   const paymentStatus = searchParams.get('success')
     ? 'success'
     : searchParams.get('canceled')
       ? 'canceled'
       : null;
+  const sessionId = searchParams.get('session_id');
+
+  useEffect(() => {
+    if (paymentStatus !== 'success' || !sessionId || confirmAttempted.current) return;
+    confirmAttempted.current = true;
+
+    confirmPaidOrder(sessionId).catch((err) => {
+      console.error(err);
+    });
+  }, [paymentStatus, sessionId]);
 
   useEffect(() => {
     if (!paymentStatus) return;
