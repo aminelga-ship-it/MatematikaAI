@@ -1,9 +1,6 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowLeft, Check, X, ShoppingCart, Info, ZoomIn } from 'lucide-react';
-
-type CalculatorsProps = {
-  onBack: () => void;
-};
 
 type CalculatorImage = {
   src: string;
@@ -268,19 +265,19 @@ function Modal({ model, onClose }: { model: CalculatorModel; onClose: () => void
   );
 }
 
-export default function Calculators({ onBack }: CalculatorsProps) {
+export default function Calculators() {
   const [activeModel, setActiveModel] = useState<CalculatorModel | null>(null);
 
   return (
     <div className="min-h-[80vh] px-4 py-10 sm:px-6 sm:py-16">
       <div className="max-w-6xl mx-auto">
-        <button
-          onClick={onBack}
+        <Link
+          to="/"
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors mb-10"
         >
           <ArrowLeft className="w-4 h-4" />
           Grįžti į pradžią
-        </button>
+        </Link>
 
         <div className="flex items-center gap-4 mb-3">
           <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-blue-200">

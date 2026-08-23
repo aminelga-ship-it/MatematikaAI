@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import {
   FileText,
   GraduationCap,
@@ -30,6 +31,7 @@ const sections = [
     accent: 'blue',
     badge: 'Įsigykite čia',
     action: 'calculators',
+    href: '/skaiciuotuvai',
   },
   {
     icon: Users,
@@ -38,6 +40,7 @@ const sections = [
     accent: 'violet',
     badge: null,
     action: 'tutors',
+    href: null,
   },
   {
     icon: Link2,
@@ -46,6 +49,7 @@ const sections = [
     accent: 'violet',
     badge: null,
     action: 'links',
+    href: null,
   },
 ];
 
@@ -166,16 +170,13 @@ export default function Home({ onNavigate }: HomeProps) {
               const a = accentMap[s.accent];
               const Icon = s.icon;
               const clickable = s.action !== null;
-              return (
-                <button
-                  key={s.title}
-                  onClick={() => clickable && s.action && onNavigate(s.action)}
-                  className={`group text-left p-7 rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm transition-all duration-300 ${
-                    clickable
-                      ? 'hover:-translate-y-1 hover:shadow-xl cursor-pointer'
-                      : 'cursor-default'
-                  }`}
-                >
+              const cardClassName = `group text-left p-7 rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm transition-all duration-300 ${
+                clickable
+                  ? 'hover:-translate-y-1 hover:shadow-xl cursor-pointer'
+                  : 'cursor-default'
+              }`;
+              const cardContent = (
+                <>
                   <div
                     className={`flex items-center justify-center w-14 h-14 rounded-2xl ${a.bg} ${a.text} ring-1 ${a.ring} transition-colors duration-300 ${a.hover}`}
                   >
@@ -198,6 +199,24 @@ export default function Home({ onNavigate }: HomeProps) {
                       <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </div>
                   )}
+                </>
+              );
+
+              if (s.href) {
+                return (
+                  <Link key={s.title} to={s.href} className={cardClassName}>
+                    {cardContent}
+                  </Link>
+                );
+              }
+
+              return (
+                <button
+                  key={s.title}
+                  onClick={() => clickable && s.action && onNavigate(s.action)}
+                  className={cardClassName}
+                >
+                  {cardContent}
                 </button>
               );
             })}
