@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, X, ShoppingCart, Info, ZoomIn } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Check, X, ShoppingCart, Info, ZoomIn, Loader2 } from 'lucide-react';
+import { createCheckoutSession } from '@/lib/checkout';
 
 type CalculatorImage = {
   src: string;
@@ -267,6 +268,32 @@ function Modal({ model, onClose }: { model: CalculatorModel; onClose: () => void
 
 export default function Calculators() {
   const [activeModel, setActiveModel] = useState<CalculatorModel | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paymentStatus = searchParams.get('success')
+    ? 'success'
+    : searchParams.get('canceled')
+      ? 'canceled'
+      : null;
+
+  useEffect(() => {
+    if (!paymentStatus) return;
+    const timer = setTimeout(() => setSearchParams({}, { replace: true }), 8000);
+    return () => clearTimeout(timer);
+  }, [paymentStatus, setSearchParams]);
+
+  const handleOrder = async (model: CalculatorModel) => {
+    setError(null);
+    setLoadingId(model.id);
+    try {
+      const url = await createCheckoutSession(model.id);
+      window.location.href = url;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Nepavyko pradėti apmokėjimo');
+      setLoadingId(null);
+    }
+  };
 
   return (
     <div className="min-h-[80vh] px-4 py-10 sm:px-6 sm:py-16">
@@ -278,6 +305,31 @@ export default function Calculators() {
           <ArrowLeft className="w-4 h-4" />
           Grįžti į pradžią
         </Link>
+
+        {paymentStatus === 'success' && (
+          <div className="mb-8 rounded-2xl bg-emerald-50 ring-1 ring-emerald-200 px-5 py-4 text-emerald-800">
+            <p className="font-semibold">Apmokėjimas sėkmingas!</p>
+            <p className="mt-1 text-sm text-emerald-700">
+              Ačiū už užsakymą. Netrukus susisieksime dėl pristatymo.
+            </p>
+          </div>
+        )}
+
+        {paymentStatus === 'canceled' && (
+          <div className="mb-8 rounded-2xl bg-amber-50 ring-1 ring-amber-200 px-5 py-4 text-amber-800">
+            <p className="font-semibold">Apmokėjimas atšauktas</p>
+            <p className="mt-1 text-sm text-amber-700">
+              Galite bandyti dar kartą, kai būsite pasiruošę.
+            </p>
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-8 rounded-2xl bg-red-50 ring-1 ring-red-200 px-5 py-4 text-red-800">
+            <p className="font-semibold">Klaida</p>
+            <p className="mt-1 text-sm text-red-700">{error}</p>
+          </div>
+        )}
 
         <div className="flex items-center gap-4 mb-3">
           <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-blue-200">
@@ -333,9 +385,17 @@ export default function Calculators() {
               <div className="px-4 pb-6 sm:px-7 sm:pb-7 flex flex-col flex-1">
                 <ComparisonTable model={model} />
 
-                <button className="mt-6 inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-colors">
-                  <ShoppingCart className="w-5 h-5" />
-                  Užsakyti
+                <button
+                  onClick={() => handleOrder(model)}
+                  disabled={loadingId !== null}
+                  className="mt-6 inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {loadingId === model.id ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <ShoppingCart className="w-5 h-5" />
+                  )}
+                  {loadingId === model.id ? 'Ruošiama...' : 'Užsakyti'}
                 </button>
               </div>
             </div>
