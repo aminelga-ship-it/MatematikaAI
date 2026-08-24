@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Check, X, ShoppingCart, Info, ZoomIn } from 'lucide-react';
+import { ArrowLeft, Check, X, ShoppingCart, Info, ZoomIn, Truck } from 'lucide-react';
 import CheckoutModal from '@/components/CheckoutModal';
 import { confirmPaidOrder } from '@/lib/confirmOrder';
 
@@ -342,8 +342,12 @@ export default function Calculators() {
           </div>
           <h1 className="text-2xl sm:text-4xl font-bold text-slate-900">Skaičiuotuvų palyginimas</h1>
         </div>
-        <p className="text-slate-500 text-lg max-w-2xl mb-12">
+        <p className="text-slate-500 text-lg max-w-2xl mb-3">
           Palyginkite du populiariausius skaičiuotuvus ir pasirinkite tinkamiausią.
+        </p>
+        <p className="inline-flex items-center gap-2 text-sm font-medium text-emerald-700 mb-12">
+          <Truck className="w-4 h-4" />
+          Nemokamas siuntimas į LP Express paštomatą
         </p>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -397,6 +401,9 @@ export default function Calculators() {
                   <ShoppingCart className="w-5 h-5" />
                   Užsakyti
                 </button>
+                <p className="mt-3 text-center text-sm text-emerald-700 font-medium">
+                  Nemokamas siuntimas
+                </p>
               </div>
             </div>
           ))}

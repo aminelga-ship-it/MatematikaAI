@@ -92,6 +92,7 @@ export default function CheckoutModal({
         <div className="p-8">
           <h2 className="text-2xl font-bold text-slate-900">Užsakymas</h2>
           <p className="mt-2 text-slate-500">{calculatorName}</p>
+          <p className="mt-1 text-sm font-medium text-emerald-700">Nemokamas siuntimas</p>
 
           <div className="mt-6 space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
