@@ -20,7 +20,7 @@ const tutors: Tutor[] = [
   {
     id: 'tutor-1',
     name: 'Artūras Minelga',
-    price: '30 Eur/1 a.v.',
+    price: '25 Eur/1 a.v.',
     photo: '/images/arturas.jpg',
     shortDescription:
       'Individualios matematikos pamokos 5–12 kl. mokiniams. 12 metų patirtis.',
