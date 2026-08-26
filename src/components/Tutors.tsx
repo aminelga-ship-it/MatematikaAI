@@ -1,9 +1,6 @@
 import { FormEvent, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowLeft, X, Send, Users } from 'lucide-react';
-
-type TutorsProps = {
-  onBack: () => void;
-};
 
 type Tutor = {
   id: string;
@@ -211,19 +208,19 @@ function TutorModal({ tutor, onClose }: { tutor: Tutor; onClose: () => void }) {
   );
 }
 
-export default function Tutors({ onBack }: TutorsProps) {
+export default function Tutors() {
   const [activeTutor, setActiveTutor] = useState<Tutor | null>(null);
 
   return (
     <div className="min-h-[80vh] px-6 py-16">
       <div className="max-w-6xl mx-auto">
-        <button
-          onClick={onBack}
+        <Link
+          to="/"
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors mb-10"
         >
           <ArrowLeft className="w-4 h-4" />
           Grįžti į pradžią
-        </button>
+        </Link>
 
         <div className="flex items-center gap-4 mb-3">
           <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-violet-50 text-violet-600 ring-1 ring-violet-200">

@@ -7,7 +7,7 @@ import Tutors from '@/components/Tutors';
 import UsefulLinks from '@/components/UsefulLinks';
 import Calculators from '@/components/Calculators';
 
-type Page = 'home' | 'tutors' | 'links';
+type Page = 'home' | 'links';
 
 function MainPages() {
   const [page, setPage] = useState<Page>('home');
@@ -18,13 +18,16 @@ function MainPages() {
       navigate('/skaiciuotuvai');
       return;
     }
+    if (p === 'tutors') {
+      navigate('/korepetitoriai');
+      return;
+    }
     setPage(p as Page);
   };
 
   return (
     <>
       {page === 'home' && <Home onNavigate={handleNavigate} />}
-      {page === 'tutors' && <Tutors onBack={() => setPage('home')} />}
       {page === 'links' && <UsefulLinks onBack={() => setPage('home')} />}
     </>
   );
@@ -40,6 +43,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<MainPages />} />
           <Route path="/skaiciuotuvai" element={<Calculators />} />
+          <Route path="/korepetitoriai" element={<Tutors />} />
         </Routes>
       </main>
       <Footer />

@@ -40,7 +40,7 @@ const sections = [
     accent: 'violet',
     badge: null,
     action: 'tutors',
-    href: null,
+    href: '/korepetitoriai',
   },
   {
     icon: Link2,
