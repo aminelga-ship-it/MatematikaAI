@@ -35,4 +35,9 @@ export const usefulLinks: UsefulLink[] = [
     title: 'Youtube vaizdo pamokos',
     url: 'https://www.youtube.com/playlist?list=PLb3M6Z90Z4rR_KK72vB4xsh8nFsi0gjMX',
   },
+  {
+    id: 'NŠA skaitmeninės priemonės',
+    title: 'Kitos skaitmeninės priemonės',
+    url: 'https://emokykla.lt/skaitmenines-mokymo-priemones/priemones?KL_PROJ_01=5323',
+  },
 ];
