@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Check, X, ShoppingCart, Info, ZoomIn, Truck } from 'lucide-react';
 import CheckoutModal from '@/components/CheckoutModal';
-import { confirmPaidOrder } from '@/lib/confirmOrder';
 
 type CalculatorImage = {
   src: string;
@@ -272,22 +271,11 @@ export default function Calculators() {
   const [checkoutModel, setCheckoutModel] = useState<CalculatorModel | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const confirmAttempted = useRef(false);
   const paymentStatus = searchParams.get('success')
     ? 'success'
     : searchParams.get('canceled')
       ? 'canceled'
       : null;
-  const sessionId = searchParams.get('session_id');
-
-  useEffect(() => {
-    if (paymentStatus !== 'success' || !sessionId || confirmAttempted.current) return;
-    confirmAttempted.current = true;
-
-    confirmPaidOrder(sessionId).catch((err) => {
-      console.error(err);
-    });
-  }, [paymentStatus, sessionId]);
 
   useEffect(() => {
     if (!paymentStatus) return;
@@ -315,7 +303,7 @@ export default function Calculators() {
           <div className="mb-8 rounded-2xl bg-emerald-50 ring-1 ring-emerald-200 px-5 py-4 text-emerald-800">
             <p className="font-semibold">Apmokėjimas sėkmingas!</p>
             <p className="mt-1 text-sm text-emerald-700">
-              Ačiū už užsakymą. Siuntą išsiųsime į jūsų pasirinktą LP Express paštomatą.
+              Ačiū už užsakymą. Netrukus susisieksime dėl pristatymo arba atsiėmimo.
             </p>
           </div>
         )}
@@ -345,9 +333,9 @@ export default function Calculators() {
         <p className="text-slate-500 text-lg max-w-2xl mb-3">
           Palyginkite du populiariausius skaičiuotuvus ir pasirinkite tinkamiausią.
         </p>
-        <p className="inline-flex items-center gap-2 text-sm font-medium text-emerald-700 mb-12">
+        <p className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 mb-12">
           <Truck className="w-4 h-4" />
-          Nemokamas siuntimas į LP Express paštomatą
+          Siuntimas nuo 0 € (atsiėmimas Telšiuose) arba +2 € (LP Express / paštas)
         </p>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -401,8 +389,8 @@ export default function Calculators() {
                   <ShoppingCart className="w-5 h-5" />
                   Užsakyti
                 </button>
-                <p className="mt-3 text-center text-sm text-emerald-700 font-medium">
-                  Nemokamas siuntimas
+                <p className="mt-3 text-center text-sm text-slate-500">
+                  Nemokamas atsiėmimas Telšiuose arba siuntimas +2 €
                 </p>
               </div>
             </div>

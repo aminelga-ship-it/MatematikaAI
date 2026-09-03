@@ -1,4 +1,5 @@
 import type { LpExpressTerminal } from '@/types/lpExpress';
+import type { PostalAddress, ShippingMethod } from '@/types/shipping';
 
 export type RecipientInfo = {
   firstName: string;
@@ -9,6 +10,8 @@ export type RecipientInfo = {
 
 export type CheckoutPayload = {
   calculatorId: string;
+  shippingMethod: ShippingMethod;
   recipient: RecipientInfo;
-  terminal: LpExpressTerminal;
+  terminal?: LpExpressTerminal;
+  postalAddress?: PostalAddress;
 };

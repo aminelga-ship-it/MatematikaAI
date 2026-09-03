@@ -14,6 +14,14 @@ const CALCULATOR_NAMES: Record<string, string> = {
   'fx-991-ex': 'FX-991 EX ClassWiz',
 };
 
+const SHIPPING_METHOD_LABELS: Record<string, string> = {
+  'pickup-telsiai': 'Atsiėmimas Telšiuose',
+  'lp-express': 'LP Express paštomatas',
+  post: 'Paštas',
+};
+
+type ShippingMethod = 'pickup-telsiai' | 'lp-express' | 'post';
+
 type TerminalPayload = {
   id: string;
   code: string;
@@ -21,6 +29,12 @@ type TerminalPayload = {
   name: string;
   address: string;
   comment?: string;
+};
+
+type PostalAddressPayload = {
+  street: string;
+  city: string;
+  postalCode: string;
 };
 
 type RecipientPayload = {
@@ -32,6 +46,28 @@ type RecipientPayload = {
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonePattern = /^\+?[0-9\s\-()]{8,20}$/;
+const SHIPPING_METHODS: ShippingMethod[] = ['pickup-telsiai', 'lp-express', 'post'];
+
+function isShippingMethod(value: string): value is ShippingMethod {
+  return SHIPPING_METHODS.includes(value as ShippingMethod);
+}
+
+function buildDeliverySummary(
+  shippingMethod: ShippingMethod,
+  terminal?: TerminalPayload,
+  postalAddress?: PostalAddressPayload,
+): string {
+  if (shippingMethod === 'pickup-telsiai') {
+    return 'Atsiėmimas Telšiuose';
+  }
+  if (shippingMethod === 'post' && postalAddress) {
+    return `Paštas: ${postalAddress.street}, ${postalAddress.postalCode} ${postalAddress.city}`;
+  }
+  if (shippingMethod === 'lp-express' && terminal) {
+    return `LP Express ${terminal.city} (${terminal.code}), ${terminal.address}`;
+  }
+  return SHIPPING_METHOD_LABELS[shippingMethod] ?? shippingMethod;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -43,9 +79,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Stripe is not configured' });
   }
 
-  const { calculatorId, terminal, recipient } = req.body as {
+  const { calculatorId, shippingMethod, terminal, postalAddress, recipient } = req.body as {
     calculatorId?: string;
+    shippingMethod?: string;
     terminal?: TerminalPayload;
+    postalAddress?: PostalAddressPayload;
     recipient?: RecipientPayload;
   };
 
@@ -53,6 +91,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!priceId || !calculatorId) {
     return res.status(400).json({ error: 'Invalid calculator' });
+  }
+
+  if (!shippingMethod || !isShippingMethod(shippingMethod)) {
+    return res.status(400).json({ error: 'Pasirinkite siuntimo būdą' });
   }
 
   if (!recipient?.firstName?.trim() || !recipient?.lastName?.trim()) {
@@ -67,8 +109,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Įveskite teisingą el. paštą' });
   }
 
-  if (!terminal?.id || !terminal.city || !terminal.address) {
+  if (shippingMethod === 'lp-express' && (!terminal?.id || !terminal.city || !terminal.address)) {
     return res.status(400).json({ error: 'Pasirinkite LP Express paštomatą' });
+  }
+
+  if (shippingMethod === 'post') {
+    if (!postalAddress?.street?.trim() || !postalAddress.city?.trim() || !postalAddress.postalCode?.trim()) {
+      return res.status(400).json({ error: 'Įveskite pilną pašto adresą' });
+    }
+  }
+
+  const shippingRateId = process.env.STRIPE_SHIPPING_RATE ?? process.env.STRIPE_PRICE_SHIPPING;
+  if (shippingMethod !== 'pickup-telsiai' && !shippingRateId) {
+    return res.status(500).json({ error: 'Siuntimo tarifas nėra sukonfigūruotas' });
   }
 
   const origin = req.headers.origin ?? 'http://localhost:5173';
@@ -76,29 +129,64 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const lastName = recipient.lastName.trim();
   const phone = recipient.phone.trim();
   const email = recipient.email.trim();
+  const calculatorName = CALCULATOR_NAMES[calculatorId] ?? calculatorId;
+  const shippingLabel = SHIPPING_METHOD_LABELS[shippingMethod] ?? shippingMethod;
+  const recipientName = `${firstName} ${lastName}`;
+  const deliverySummary = buildDeliverySummary(shippingMethod, terminal, postalAddress);
+
+  const orderMetadata: Record<string, string> = {
+    calculatorId,
+    calculatorName,
+    shippingMethod,
+    shippingLabel,
+    recipientFirstName: firstName,
+    recipientLastName: lastName,
+    recipientPhone: phone,
+    recipientEmail: email,
+    deliverySummary: deliverySummary.slice(0, 500),
+  };
+
+  if (shippingMethod === 'lp-express' && terminal) {
+    orderMetadata.terminalId = terminal.id;
+    orderMetadata.terminalCode = terminal.code;
+    orderMetadata.terminalCity = terminal.city;
+    orderMetadata.terminalAddress = terminal.address.slice(0, 450);
+    orderMetadata.terminalName = terminal.name;
+  }
+
+  if (shippingMethod === 'post' && postalAddress) {
+    orderMetadata.postalStreet = postalAddress.street.trim().slice(0, 450);
+    orderMetadata.postalCity = postalAddress.city.trim();
+    orderMetadata.postalCode = postalAddress.postalCode.trim();
+  }
+
+  const orderDescription = [
+    calculatorName,
+    shippingLabel,
+    `Gavėjas: ${recipientName}, ${phone}, ${email}`,
+    deliverySummary,
+  ].join(' | ');
+
+  const sessionParams: Stripe.Checkout.SessionCreateParams = {
+    mode: 'payment',
+    customer_email: email,
+    line_items: [{ price: priceId, quantity: 1 }],
+    success_url: `${origin}/skaiciuotuvai?success=true`,
+    cancel_url: `${origin}/skaiciuotuvai?canceled=true`,
+    metadata: orderMetadata,
+    payment_intent_data: {
+      description: orderDescription.slice(0, 1000),
+      metadata: orderMetadata,
+    },
+  };
+
+  if (shippingMethod !== 'pickup-telsiai' && shippingRateId) {
+    sessionParams.shipping_options = [{ shipping_rate: shippingRateId }];
+  }
 
   try {
     const stripe = new Stripe(secretKey);
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      customer_email: email,
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${origin}/skaiciuotuvai?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/skaiciuotuvai?canceled=true`,
-      metadata: {
-        calculatorId,
-        calculatorName: CALCULATOR_NAMES[calculatorId] ?? calculatorId,
-        recipientFirstName: firstName,
-        recipientLastName: lastName,
-        recipientPhone: phone,
-        recipientEmail: email,
-        terminalId: terminal.id,
-        terminalCode: terminal.code,
-        terminalCity: terminal.city,
-        terminalAddress: terminal.address.slice(0, 450),
-        terminalName: terminal.name,
-      },
-    });
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     return res.status(200).json({ url: session.url });
   } catch {

@@ -3,6 +3,7 @@ import { Loader2, ShoppingCart, X } from 'lucide-react';
 import LpExpressWidget from '@/components/LpExpressWidget';
 import { createCheckoutSession } from '@/lib/checkout';
 import type { LpExpressTerminal } from '@/types/lpExpress';
+import { SHIPPING_OPTIONS, type ShippingMethod } from '@/types/shipping';
 
 type CheckoutModalProps = {
   calculatorId: string;
@@ -20,13 +21,19 @@ export default function CheckoutModal({
   onClose,
   onError,
 }: CheckoutModalProps) {
+  const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('lp-express');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [terminal, setTerminal] = useState<LpExpressTerminal | null>(null);
+  const [street, setStreet] = useState('');
+  const [city, setCity] = useState('');
+  const [postalCode, setPostalCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  const selectedShipping = SHIPPING_OPTIONS.find((option) => option.id === shippingMethod)!;
 
   const validate = (): string | null => {
     if (!firstName.trim()) return 'Įveskite gavėjo vardą';
@@ -35,7 +42,12 @@ export default function CheckoutModal({
     if (!phonePattern.test(phone.trim())) return 'Įveskite teisingą telefono numerį';
     if (!email.trim()) return 'Įveskite el. paštą';
     if (!emailPattern.test(email.trim())) return 'Įveskite teisingą el. paštą';
-    if (!terminal) return 'Pasirinkite LP Express paštomatą';
+    if (shippingMethod === 'lp-express' && !terminal) return 'Pasirinkite LP Express paštomatą';
+    if (shippingMethod === 'post') {
+      if (!street.trim()) return 'Įveskite gavėjo adresą';
+      if (!city.trim()) return 'Įveskite miestą';
+      if (!postalCode.trim()) return 'Įveskite pašto kodą';
+    }
     return null;
   };
 
@@ -46,21 +58,28 @@ export default function CheckoutModal({
       return;
     }
 
-    if (!terminal) return;
-
     setValidationError(null);
     setLoading(true);
 
     try {
       const url = await createCheckoutSession({
         calculatorId,
+        shippingMethod,
         recipient: {
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           phone: phone.trim(),
           email: email.trim(),
         },
-        terminal,
+        terminal: shippingMethod === 'lp-express' ? terminal ?? undefined : undefined,
+        postalAddress:
+          shippingMethod === 'post'
+            ? {
+                street: street.trim(),
+                city: city.trim(),
+                postalCode: postalCode.trim(),
+              }
+            : undefined,
       });
       window.location.href = url;
     } catch (err) {
@@ -92,7 +111,55 @@ export default function CheckoutModal({
         <div className="p-8">
           <h2 className="text-2xl font-bold text-slate-900">Užsakymas</h2>
           <p className="mt-2 text-slate-500">{calculatorName}</p>
-          <p className="mt-1 text-sm font-medium text-emerald-700">Nemokamas siuntimas</p>
+          <p className="mt-1 text-sm font-medium text-slate-600">
+            Siuntimas:{' '}
+            {selectedShipping.priceEur === 0
+              ? 'nemokamas'
+              : `+${selectedShipping.priceEur.toFixed(2).replace('.', ',')} €`}
+          </p>
+
+          <div className="mt-6 space-y-3">
+            <p className="text-sm font-medium text-slate-600">Siuntimo būdas</p>
+            {SHIPPING_OPTIONS.map((option) => {
+              const selected = shippingMethod === option.id;
+              return (
+                <label
+                  key={option.id}
+                  className={`block cursor-pointer rounded-2xl border p-4 transition-colors ${
+                    selected
+                      ? 'border-blue-500 bg-blue-50/60 ring-1 ring-blue-200'
+                      : 'border-slate-200 bg-white hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="radio"
+                      name="shippingMethod"
+                      value={option.id}
+                      checked={selected}
+                      onChange={() => setShippingMethod(option.id)}
+                      className="mt-1"
+                    />
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-slate-900">{option.label}</span>
+                        <span
+                          className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                            option.priceEur === 0
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          {option.priceEur === 0 ? 'Nemokamai' : `+${option.priceEur} €`}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm text-slate-600">{option.description}</p>
+                    </div>
+                  </div>
+                </label>
+              );
+            })}
+          </div>
 
           <div className="mt-6 space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
@@ -144,9 +211,51 @@ export default function CheckoutModal({
               />
             </label>
 
-            <div className="pt-2 border-t border-slate-100">
-              <LpExpressWidget value={terminal} onChange={setTerminal} />
-            </div>
+            {shippingMethod === 'lp-express' && (
+              <div className="pt-2 border-t border-slate-100">
+                <LpExpressWidget value={terminal} onChange={setTerminal} />
+              </div>
+            )}
+
+            {shippingMethod === 'post' && (
+              <div className="pt-2 border-t border-slate-100 space-y-4">
+                <label className="block">
+                  <span className="mb-2 block text-sm font-medium text-slate-600">Adresas</span>
+                  <input
+                    type="text"
+                    autoComplete="street-address"
+                    value={street}
+                    onChange={(e) => setStreet(e.target.value)}
+                    className={inputClassName}
+                    placeholder="Gatvė, namo nr., butas"
+                  />
+                </label>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-medium text-slate-600">Miestas</span>
+                    <input
+                      type="text"
+                      autoComplete="address-level2"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className={inputClassName}
+                      placeholder="Vilnius"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-medium text-slate-600">Pašto kodas</span>
+                    <input
+                      type="text"
+                      autoComplete="postal-code"
+                      value={postalCode}
+                      onChange={(e) => setPostalCode(e.target.value)}
+                      className={inputClassName}
+                      placeholder="01234"
+                    />
+                  </label>
+                </div>
+              </div>
+            )}
           </div>
 
           {validationError && (
