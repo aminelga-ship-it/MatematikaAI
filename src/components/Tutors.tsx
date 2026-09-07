@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, X, Send, Users } from 'lucide-react';
 
 type Tutor = {
@@ -21,8 +21,12 @@ const tutors: Tutor[] = [
     photo: '/images/arturas.jpg',
     shortDescription:
       'Individualios matematikos pamokos 5–12 kl. mokiniams. 12 metų patirtis.',
-    fullDescription:
-      'Individualios matematikos pamokos 5–12 kl. mokiniams. Aiškiai, kūrybiškai, interaktyviai pateikiama medžiaga, o 12 metų patirtis rodo, kad moksleiviai pasilieka ir rekomenduoja pažįstamiems.',
+    fullDescription: `Individualios matematikos pamokos 5-12 kl. moksleiviams:
+✅ professionaliai - 11 metų patirtis, pedagoginis išsilavinimas, darbas gimnazijoje.
+✅ aiškiai - medžiaga pateikiama kaip paprastam žmogui, ne mokytojui.
+✅ lanksčiai - nereikia pirkti jokių narysčių ar mokėti už mėnesį į priekį, taigi, niekuo nerizikuojate. Galima dirbti ir sekmadieniais, o pamokų laiką esant reikalui keisti.
+✅ kūrybiškai - gyvenimiški pavyzdžiai, naudojami inovatyvūs metodai.
+✅ individualiai - pritaikomas mokymosi būdas ir skiriamas dėmesys tik Jums.`,
   },
 ];
 
@@ -50,6 +54,7 @@ function buildEmailBody({
 }
 
 function TutorModal({ tutor, onClose }: { tutor: Tutor; onClose: () => void }) {
+  const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [facebook, setFacebook] = useState('');
   const [phone, setPhone] = useState('');
@@ -108,7 +113,8 @@ function TutorModal({ tutor, onClose }: { tutor: Tutor; onClose: () => void }) {
       setMessage('');
       setFacebook('');
       setPhone('');
-      setStatusMessage('Užklausa išsiųsta. Netrukus su jumis susisieksime.');
+      onClose();
+      navigate('/korepetitoriai/uzklausa-gauta');
     } catch {
       const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
         `Korepetitorių užklausa: ${tutor.name}`,
@@ -229,15 +235,14 @@ export default function Tutors() {
           <h1 className="text-4xl font-bold text-slate-900">Matematikos korepetitoriai</h1>
         </div>
         <p className="text-slate-500 text-lg max-w-2xl mb-12">
-          Susipažinkite su mūsų korepetitoriais ir pasirinkite tinkamiausią pagalbininką.
+          Susipažinkite su mūsų korepetitoriumi ir pasirinkite tinkamiausią pagalbininką.
         </p>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {tutors.map((tutor) => (
-            <button
+            <div
               key={tutor.id}
-              onClick={() => setActiveTutor(tutor)}
-              className="group flex flex-col text-left rounded-3xl bg-white ring-1 ring-slate-200 shadow-sm hover:shadow-xl hover:ring-violet-200 transition-all duration-300 overflow-hidden"
+              className="group flex flex-col rounded-3xl bg-white ring-1 ring-slate-200 shadow-sm hover:shadow-xl hover:ring-violet-200 transition-all duration-300 overflow-hidden"
             >
               <div className="aspect-[5/4] overflow-hidden bg-slate-100">
                 <img
@@ -247,15 +252,20 @@ export default function Tutors() {
                 />
               </div>
               <div className="p-5 flex flex-col flex-1">
-                <h2 className="text-lg font-bold text-slate-900 group-hover:text-violet-700 transition-colors">
-                  {tutor.name}
-                </h2>
+                <h2 className="text-lg font-bold text-slate-900">{tutor.name}</h2>
                 <p className="mt-1 text-base font-semibold text-violet-600">{tutor.price}</p>
                 <p className="mt-2 text-sm text-slate-500 leading-relaxed line-clamp-3">
                   {tutor.shortDescription}
                 </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveTutor(tutor)}
+                  className="mt-5 w-full py-3 rounded-xl bg-violet-600 text-white font-semibold shadow-lg shadow-violet-600/20 hover:bg-violet-700 transition-colors"
+                >
+                  Daugiau informacijos
+                </button>
               </div>
-            </button>
+            </div>
           ))}
         </div>
       </div>

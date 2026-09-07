@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Home from '@/components/Home';
 import Tutors from '@/components/Tutors';
+import TutorThankYou from '@/components/TutorThankYou';
 import UsefulLinks from '@/components/UsefulLinks';
 import Calculators from '@/components/Calculators';
 
@@ -43,6 +44,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<MainPages />} />
           <Route path="/skaiciuotuvai" element={<Calculators />} />
+          <Route path="/korepetitoriai/uzklausa-gauta" element={<TutorThankYou />} />
           <Route path="/korepetitoriai" element={<Tutors />} />
         </Routes>
       </main>
