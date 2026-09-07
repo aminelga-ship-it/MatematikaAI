@@ -22,10 +22,15 @@ const tutors: Tutor[] = [
     shortDescription:
       'Individualios matematikos pamokos 5–12 kl. mokiniams. 12 metų patirtis.',
     fullDescription: `Individualios matematikos pamokos 5-12 kl. moksleiviams:
+
 ✅ professionaliai - 11 metų patirtis, pedagoginis išsilavinimas, darbas gimnazijoje.
+
 ✅ aiškiai - medžiaga pateikiama kaip paprastam žmogui, ne mokytojui.
+
 ✅ lanksčiai - nereikia pirkti jokių narysčių ar mokėti už mėnesį į priekį, taigi, niekuo nerizikuojate. Galima dirbti ir sekmadieniais, o pamokų laiką esant reikalui keisti.
+
 ✅ kūrybiškai - gyvenimiški pavyzdžiai, naudojami inovatyvūs metodai.
+
 ✅ individualiai - pritaikomas mokymosi būdas ir skiriamas dėmesys tik Jums.`,
   },
 ];
@@ -155,7 +160,7 @@ function TutorModal({ tutor, onClose }: { tutor: Tutor; onClose: () => void }) {
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-slate-900">{tutor.name}</h2>
               <p className="mt-1 text-lg font-semibold text-violet-600">{tutor.price}</p>
-              <p className="mt-3 text-sm text-slate-600 leading-relaxed">{tutor.fullDescription}</p>
+              <p className="mt-3 text-sm text-slate-600 leading-relaxed whitespace-pre-line">{tutor.fullDescription}</p>
             </div>
           </div>
 

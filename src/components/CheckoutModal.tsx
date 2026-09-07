@@ -33,8 +33,6 @@ export default function CheckoutModal({
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const selectedShipping = SHIPPING_OPTIONS.find((option) => option.id === shippingMethod)!;
-
   const validate = (): string | null => {
     if (!firstName.trim()) return 'Įveskite gavėjo vardą';
     if (!lastName.trim()) return 'Įveskite gavėjo pavardę';
@@ -112,10 +110,7 @@ export default function CheckoutModal({
           <h2 className="text-2xl font-bold text-slate-900">Užsakymas</h2>
           <p className="mt-2 text-slate-500">{calculatorName}</p>
           <p className="mt-1 text-sm font-medium text-slate-600">
-            Siuntimas:{' '}
-            {selectedShipping.priceEur === 0
-              ? 'nemokamas'
-              : `+${selectedShipping.priceEur.toFixed(2).replace('.', ',')} €`}
+            Numatomas pristatymo laikas: 7–10 dienų
           </p>
 
           <div className="mt-6 space-y-3">
