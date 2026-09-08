@@ -15,6 +15,11 @@ type CheckoutModalProps = {
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonePattern = /^\+?[0-9\s\-()]{8,20}$/;
 
+const DELIVERY_TIME: Record<string, string> = {
+  'fx-991-es': 'Numatomas pristatymo laikas: 1–3 dienos priklausomai nuo siuntimo būdo.',
+  'fx-991-ex': 'Numatomas pristatymo laikas: 7–10 dienų',
+};
+
 export default function CheckoutModal({
   calculatorId,
   calculatorName,
@@ -110,7 +115,7 @@ export default function CheckoutModal({
           <h2 className="text-2xl font-bold text-slate-900">Užsakymas</h2>
           <p className="mt-2 text-slate-500">{calculatorName}</p>
           <p className="mt-1 text-sm font-medium text-slate-600">
-            Numatomas pristatymo laikas: 7–10 dienų
+            {DELIVERY_TIME[calculatorId] ?? DELIVERY_TIME['fx-991-ex']}
           </p>
 
           <div className="mt-6 space-y-3">

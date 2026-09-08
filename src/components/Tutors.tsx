@@ -240,7 +240,7 @@ export default function Tutors() {
           <h1 className="text-4xl font-bold text-slate-900">Matematikos korepetitoriai</h1>
         </div>
         <p className="text-slate-500 text-lg max-w-2xl mb-12">
-          Susipažinkite su mūsų korepetitoriumi ir pasirinkite tinkamiausią pagalbininką.
+          Susipažinkite su mūsų korepetitoriumi.
         </p>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
