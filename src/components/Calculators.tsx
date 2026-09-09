@@ -333,9 +333,6 @@ export default function Calculators() {
         <p className="text-slate-500 text-lg max-w-2xl mb-3">
           Palyginkite du populiariausius skaičiuotuvus ir pasirinkite tinkamiausią.
         </p>
-        <p className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 mb-12">
-          <Truck className="w-4 h-4" />
-        </p>
 
         <div className="grid md:grid-cols-2 gap-6">
           {models.map((model) => (

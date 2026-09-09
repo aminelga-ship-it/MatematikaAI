@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, X, Send, Users } from 'lucide-react';
+import { ArrowLeft, Facebook, X, Send, Users } from 'lucide-react';
 
 type Tutor = {
   id: string;
@@ -10,6 +10,7 @@ type Tutor = {
   shortDescription: string;
   intro: string;
   highlights: string[];
+  facebookUrl: string;
 };
 
 const CONTACT_EMAIL = 'a.minelga@gmail.com';
@@ -18,7 +19,7 @@ const tutors: Tutor[] = [
   {
     id: 'tutor-1',
     name: 'Artūras Minelga',
-    price: '25 Eur/1 a.v.',
+    price: 'Nuo 25 Eur už pamoką',
     photo: '/images/arturas.jpg',
     shortDescription:
       'Individualios matematikos pamokos 5–12 kl. mokiniams. 12 metų patirtis.',
@@ -30,6 +31,7 @@ const tutors: Tutor[] = [
       'kūrybiškai - gyvenimiški pavyzdžiai, naudojami inovatyvūs metodai.',
       'individualiai - pritaikomas mokymosi būdas ir skiriamas dėmesys tik Jums.',
     ],
+    facebookUrl: 'https://www.facebook.com/matematikos.korepetitorius.arturas',
   },
 ];
 
@@ -270,6 +272,17 @@ export default function Tutors() {
               <div className="p-5 flex flex-col flex-1">
                 <h2 className="text-lg font-bold text-slate-900">{tutor.name}</h2>
                 <p className="mt-1 text-base font-semibold text-violet-600">{tutor.price}</p>
+                <a
+                  href={tutor.facebookUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-[#1877F2] hover:text-[#166FE5] transition-colors group"
+                >
+                  <Facebook className="w-4 h-4 shrink-0 fill-current" aria-hidden="true" />
+                  <span className="group-hover:underline underline-offset-2">
+                    Matematikos korepetitorius Artūras
+                  </span>
+                </a>
                 <p className="mt-2 text-sm text-slate-500 leading-relaxed line-clamp-3">
                   {tutor.shortDescription}
                 </p>
