@@ -161,6 +161,17 @@ function TutorModal({ tutor, onClose }: { tutor: Tutor; onClose: () => void }) {
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-slate-900">{tutor.name}</h2>
                 <p className="mt-1 text-lg font-semibold text-violet-600">{tutor.price}</p>
+                <a
+                  href={tutor.facebookUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-[#1877F2] hover:text-[#166FE5] transition-colors group"
+                >
+                  <Facebook className="w-4 h-4 shrink-0 fill-current" aria-hidden="true" />
+                  <span className="group-hover:underline underline-offset-2">
+                    Matematikos korepetitorius Artūras
+                  </span>
+                </a>
               </div>
             </div>
 
@@ -271,18 +282,6 @@ export default function Tutors() {
               </div>
               <div className="p-5 flex flex-col flex-1">
                 <h2 className="text-lg font-bold text-slate-900">{tutor.name}</h2>
-                <p className="mt-1 text-base font-semibold text-violet-600">{tutor.price}</p>
-                <a
-                  href={tutor.facebookUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-[#1877F2] hover:text-[#166FE5] transition-colors group"
-                >
-                  <Facebook className="w-4 h-4 shrink-0 fill-current" aria-hidden="true" />
-                  <span className="group-hover:underline underline-offset-2">
-                    Matematikos korepetitorius Artūras
-                  </span>
-                </a>
                 <p className="mt-2 text-sm text-slate-500 leading-relaxed line-clamp-3">
                   {tutor.shortDescription}
                 </p>
