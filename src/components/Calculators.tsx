@@ -335,7 +335,6 @@ export default function Calculators() {
         </p>
         <p className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 mb-12">
           <Truck className="w-4 h-4" />
-          Siuntimas nuo 0 € (atsiėmimas Telšiuose) arba +2 € (LP Express / paštas)
         </p>
 
         <div className="grid md:grid-cols-2 gap-6">

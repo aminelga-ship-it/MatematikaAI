@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Home from '@/components/Home';
@@ -7,6 +7,7 @@ import Tutors from '@/components/Tutors';
 import TutorThankYou from '@/components/TutorThankYou';
 import UsefulLinks from '@/components/UsefulLinks';
 import Calculators from '@/components/Calculators';
+import { pageview } from '@/lib/gtag';
 
 type Page = 'home' | 'links';
 
@@ -36,6 +37,11 @@ function MainPages() {
 
 export default function App() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    pageview(location.pathname + location.search);
+  }, [location]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">

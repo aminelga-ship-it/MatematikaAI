@@ -8,7 +8,8 @@ type Tutor = {
   price: string;
   photo: string;
   shortDescription: string;
-  fullDescription: string;
+  intro: string;
+  highlights: string[];
 };
 
 const CONTACT_EMAIL = 'a.minelga@gmail.com';
@@ -21,17 +22,14 @@ const tutors: Tutor[] = [
     photo: '/images/arturas.jpg',
     shortDescription:
       'Individualios matematikos pamokos 5–12 kl. mokiniams. 12 metų patirtis.',
-    fullDescription: `Individualios matematikos pamokos 5-12 kl. moksleiviams:
-
-✅ professionaliai - 11 metų patirtis, pedagoginis išsilavinimas, darbas gimnazijoje.
-
-✅ aiškiai - medžiaga pateikiama kaip paprastam žmogui, ne mokytojui.
-
-✅ lanksčiai - nereikia pirkti jokių narysčių ar mokėti už mėnesį į priekį, taigi, niekuo nerizikuojate. Galima dirbti ir sekmadieniais, o pamokų laiką esant reikalui keisti.
-
-✅ kūrybiškai - gyvenimiški pavyzdžiai, naudojami inovatyvūs metodai.
-
-✅ individualiai - pritaikomas mokymosi būdas ir skiriamas dėmesys tik Jums.`,
+    intro: 'Individualios matematikos pamokos 5-12 kl. moksleiviams:',
+    highlights: [
+      'professionaliai - 11 metų patirtis, pedagoginis išsilavinimas, darbas gimnazijoje.',
+      'aiškiai - medžiaga pateikiama kaip paprastam žmogui, ne mokytojui.',
+      'lanksčiai - nereikia pirkti jokių narysčių ar mokėti už mėnesį į priekį, taigi, niekuo nerizikuojate. Galima dirbti ir sekmadieniais, o pamokų laiką esant reikalui keisti.',
+      'kūrybiškai - gyvenimiški pavyzdžiai, naudojami inovatyvūs metodai.',
+      'individualiai - pritaikomas mokymosi būdas ir skiriamas dėmesys tik Jums.',
+    ],
   },
 ];
 
@@ -149,18 +147,31 @@ function TutorModal({ tutor, onClose }: { tutor: Tutor; onClose: () => void }) {
         </button>
 
         <div className="p-8">
-          <div className="flex flex-col sm:flex-row gap-6 mb-6">
-            <div className="w-32 h-32 shrink-0 rounded-2xl bg-slate-50 ring-1 ring-slate-200 overflow-hidden">
-              <img
-                src={tutor.photo}
-                alt={tutor.name}
-                className="h-full w-full object-cover object-top"
-              />
+          <div className="mb-6">
+            <div className="flex flex-col sm:flex-row gap-6">
+              <div className="w-32 h-32 shrink-0 rounded-2xl bg-slate-50 ring-1 ring-slate-200 overflow-hidden">
+                <img
+                  src={tutor.photo}
+                  alt={tutor.name}
+                  className="h-full w-full object-cover object-top"
+                />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-slate-900">{tutor.name}</h2>
+                <p className="mt-1 text-lg font-semibold text-violet-600">{tutor.price}</p>
+              </div>
             </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-slate-900">{tutor.name}</h2>
-              <p className="mt-1 text-lg font-semibold text-violet-600">{tutor.price}</p>
-              <p className="mt-3 text-sm text-slate-600 leading-relaxed whitespace-pre-line">{tutor.fullDescription}</p>
+
+            <div className="mt-5">
+              <p className="text-sm text-slate-600 leading-relaxed">{tutor.intro}</p>
+              <ul className="mt-3 space-y-3.5 text-sm text-slate-600 leading-relaxed">
+                {tutor.highlights.map((highlight) => (
+                  <li key={highlight} className="flex gap-2.5">
+                    <span className="shrink-0" aria-hidden="true">✅</span>
+                    <span>{highlight}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
@@ -177,7 +188,7 @@ function TutorModal({ tutor, onClose }: { tutor: Tutor; onClose: () => void }) {
 
             <div className="mt-4 grid sm:grid-cols-2 gap-4">
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">Facebook profilio nuoroda</span>
+                <span className="text-sm font-medium text-slate-700">Jūsų Facebook profilio nuoroda</span>
                 <input
                   type="text"
                   value={facebook}
@@ -187,7 +198,7 @@ function TutorModal({ tutor, onClose }: { tutor: Tutor; onClose: () => void }) {
                 />
               </label>
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">Tel. Nr.</span>
+                <span className="text-sm font-medium text-slate-700">Jūsų tel. nr.</span>
                 <input
                   type="tel"
                   value={phone}
