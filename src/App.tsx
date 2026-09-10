@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import Home from '@/components/Home';
 import Tutors from '@/components/Tutors';
 import TutorThankYou from '@/components/TutorThankYou';
+import TutorInquiryForm from '@/components/TutorInquiryForm';
 import UsefulLinks from '@/components/UsefulLinks';
 import Calculators from '@/components/Calculators';
 import { pageview } from '@/lib/gtag';
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/" element={<MainPages />} />
           <Route path="/skaiciuotuvai" element={<Calculators />} />
           <Route path="/korepetitoriai/uzklausa-gauta" element={<TutorThankYou />} />
+          <Route path="/korepetitoriai/uzklausa" element={<TutorInquiryForm />} />
           <Route path="/korepetitoriai" element={<Tutors />} />
         </Routes>
       </main>

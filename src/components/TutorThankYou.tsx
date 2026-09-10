@@ -1,7 +1,12 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { pageview } from '@/lib/gtag';
 
 export default function TutorThankYou() {
+  useEffect(() => {
+    pageview('/korepetitoriai/uzklausa-gauta');
+  }, []);
   return (
     <div className="min-h-[80vh] px-6 py-16">
       <div className="max-w-2xl mx-auto text-center">
