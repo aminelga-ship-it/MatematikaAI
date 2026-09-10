@@ -97,8 +97,8 @@ export default function TutorInquiryForm() {
         </Link>
 
         <div className="rounded-3xl bg-white ring-1 ring-slate-200 shadow-sm p-5 sm:p-6">
-          <div className="flex gap-3 items-start">
-            <div className="w-14 h-14 shrink-0 rounded-xl bg-slate-50 ring-1 ring-slate-200 overflow-hidden">
+          <div className="flex gap-4 items-start">
+            <div className="w-24 h-24 shrink-0 rounded-2xl bg-slate-50 ring-1 ring-slate-200 overflow-hidden">
               <img src={tutor.photo} alt={tutor.name} className="h-full w-full object-cover object-top" />
             </div>
             <div>
