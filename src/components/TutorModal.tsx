@@ -39,7 +39,7 @@ export default function TutorModal({ tutor, onClose }: TutorModalProps) {
             </div>
             <div className="min-w-0">
               <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 leading-tight">{tutor.name}</h2>
-              <p className="mt-1 text-lg font-semibold text-violet-600">{tutor.price}</p>
+              <p className="mt-1 text-lg font-semibold text-slate-900">Pamokos kaina {tutor.price}</p>
               <a
                 href={tutor.facebookUrl}
                 target="_blank"
