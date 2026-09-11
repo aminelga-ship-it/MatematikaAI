@@ -105,7 +105,7 @@ export default function TutorInquiryForm() {
               <h1 className="text-lg font-bold text-slate-900">{tutor.name}</h1>
               <p className="mt-1 text-sm text-slate-600 leading-relaxed">{tutor.shortDescription}</p>
               <p className="mt-2 text-sm font-medium text-slate-700">
-                Kaina: {tutor.price.charAt(0).toLowerCase() + tutor.price.slice(1)}
+                Kaina: {tutor.price}
               </p>
             </div>
           </div>
