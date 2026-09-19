@@ -15,7 +15,7 @@ const features = [
   'Valdymas meniu ir karštaisiais klavišais',
   'Galimybė prisitaikyti programą pagal savo poreikius',
   '7 dienų bandomasis laikotarpis, vėliau vienkartinis 9,99 € mokestis',
-  'Veikia tik Windows kompiuteryje',
+  'Veikia tik Windows operacinėje sistemoje',
 ];
 
 function FeatureCheck() {

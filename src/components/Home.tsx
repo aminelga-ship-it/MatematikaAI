@@ -38,7 +38,7 @@ const sections = [
   {
     icon: Users,
     title: 'Matematikos korepetitoriai',
-    description: 'Susipažinkite su mūsų korepetitoriumi, jo siūlomomis paslaugomis ir kainomis.',
+    description: 'Susipažinkite su mūsų korepetitoriumi',
     accent: 'violet',
     badge: null,
     action: 'tutors',
