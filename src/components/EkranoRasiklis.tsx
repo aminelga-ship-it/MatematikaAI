@@ -1,0 +1,78 @@
+import { Link } from 'react-router-dom';
+import { ArrowLeft, Check, Download, PenTool, Shield } from 'lucide-react';
+
+const BUY_URL = 'https://buy.stripe.com/aFa3cn9kg1fr2WMbum8k800';
+const SETUP_URL = import.meta.env.VITE_EKRASIKLIS_SETUP_URL as string | undefined;
+
+const features = [
+  'Piešimas ant ekrano ir balta lenta',
+  '7 dienos nemokamai, tada vienkartinis 9,99 €',
+  'Veikia Windows kompiuteryje, be Python',
+  'Licencijos raktas po apmokėjimo ateina iškart',
+];
+
+export default function EkranoRasiklis() {
+  return (
+    <div className="px-6 py-10">
+      <div className="max-w-3xl mx-auto">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 mb-8"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Grįžti į pradžią
+        </Link>
+
+        <div className="rounded-3xl bg-white ring-1 ring-slate-200 shadow-sm p-8 sm:p-10">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-blue-200">
+              <PenTool className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold tracking-wide text-slate-500">WINDOWS PROGRAMA</p>
+              <h1 className="text-3xl font-bold text-slate-900">Ekrano rašiklis</h1>
+            </div>
+          </div>
+
+          <p className="mt-6 text-slate-600 leading-relaxed">
+            Pieškite ant langų ir baltos lentos pamokų metu. Parsisiųskite, išbandykite 7 dienas,
+            tada atrakinkite vienkartiniu mokėjimu.
+          </p>
+
+          <ul className="mt-6 space-y-2">
+            {features.map((item) => (
+              <li key={item} className="flex items-start gap-2 text-sm text-slate-700">
+                <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-8 flex flex-col sm:flex-row gap-3">
+            {SETUP_URL ? (
+              <a
+                href={SETUP_URL}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800"
+              >
+                <Download className="w-4 h-4" />
+                Parsisiųsti Setup
+              </a>
+            ) : (
+              <span className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-100 text-slate-500 font-semibold">
+                <Download className="w-4 h-4" />
+                Parsisiuntimas bus čia
+              </span>
+            )}
+            <a
+              href={BUY_URL}
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700"
+            >
+              <Shield className="w-4 h-4" />
+              Pirkti 9,99 €
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -11,6 +11,7 @@ import {
   Pi,
   Sigma,
   FunctionSquare,
+  PenTool,
 } from 'lucide-react';
 import { generatorLinks } from '@/data/generatorLinks';
 
@@ -165,6 +166,29 @@ export default function Home({ onNavigate }: HomeProps) {
       {/* Sections grid */}
       <section className="relative px-6 pb-24 -mt-8">
         <div className="max-w-5xl mx-auto">
+          <Link
+            to="/ekrano-rasiklis"
+            className="group mb-6 flex flex-col sm:flex-row sm:items-center gap-4 p-6 rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
+          >
+            <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-blue-200">
+              <PenTool className="w-7 h-7" />
+            </div>
+            <div className="flex-1 text-left">
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-semibold text-slate-800">Ekrano rašiklis</h3>
+                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                  9,99 €
+                </span>
+              </div>
+              <p className="mt-1 text-sm text-slate-500">
+                Windows programa pamokoms: piešimas ant ekrano ir balta lenta. 7 dienos nemokamai.
+              </p>
+            </div>
+            <div className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-700">
+              Atidaryti
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </div>
+          </Link>
           <div className="grid md:grid-cols-3 gap-6">
             {sections.map((s) => {
               const a = accentMap[s.accent];

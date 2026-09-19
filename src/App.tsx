@@ -8,6 +8,8 @@ import TutorThankYou from '@/components/TutorThankYou';
 import TutorInquiryForm from '@/components/TutorInquiryForm';
 import UsefulLinks from '@/components/UsefulLinks';
 import Calculators from '@/components/Calculators';
+import EkranoRasiklis from '@/components/EkranoRasiklis';
+import EkranoRasiklisLicense from '@/components/EkranoRasiklisLicense';
 import { pageview } from '@/lib/gtag';
 
 type Page = 'home' | 'links';
@@ -51,6 +53,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<MainPages />} />
           <Route path="/skaiciuotuvai" element={<Calculators />} />
+          <Route path="/ekrano-rasiklis/raktas" element={<EkranoRasiklisLicense />} />
+          <Route path="/ekrano-rasiklis" element={<EkranoRasiklis />} />
           <Route path="/korepetitoriai/uzklausa-gauta" element={<TutorThankYou />} />
           <Route path="/korepetitoriai/uzklausa" element={<TutorInquiryForm />} />
           <Route path="/korepetitoriai" element={<Tutors />} />
