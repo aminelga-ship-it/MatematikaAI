@@ -1,16 +1,17 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, Download, PenTool, Shield } from 'lucide-react';
+import { ArrowLeft, Check, Download, PenTool, Play } from 'lucide-react';
 
 const BUY_URL = 'https://buy.stripe.com/aFa3cn9kg1fr2WMbum8k800';
 const SETUP_URL =
   import.meta.env.VITE_EKRASIKLIS_SETUP_URL ||
   'https://github.com/aminelga-ship-it/ekrano-rasiklis/raw/downloads/EkranoRasiklis-Setup.exe';
+const VIDEO_URL = (import.meta.env.VITE_EKRASIKLIS_VIDEO_URL || '').trim();
 
 const features = [
   'Du rėžimai: piešimas ant ekrano langų ir balta lenta',
   'Mokytojas ir mokinys gali rašyti ekrane tuo pačiu metu',
   'Vaizdo dalinimo sustabdymo ("Freeze") funkcija', 
-  'standartinių grafikų, koordinačių plokštumų, figūrų įkėlimo funkcija',
+  'Standartinių grafikų, koordinačių plokštumų, figūrų įkėlimo funkcija',
   'Valdymas meniu ir karštaisiais klavišais',
   'Galimybė prisitaikyti programą pagal savo poreikius',
   '7 dienų bandomasis laikotarpis, vėliau vienkartinis 9,99 € mokestis',
@@ -61,14 +62,29 @@ export default function EkranoRasiklis() {
               <Download className="w-4 h-4" />
               Parsisiųsti
             </a>
-            <a
-              href={BUY_URL}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700"
-            >
-              <Shield className="w-4 h-4" />
-              Pirkti 9,99 €
-            </a>
+            {VIDEO_URL ? (
+              <a
+                href={VIDEO_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700"
+              >
+                <Play className="w-4 h-4" />
+                Žiūrėti video
+              </a>
+            ) : (
+              <span className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold">
+                <Play className="w-4 h-4" />
+                Žiūrėti video
+              </span>
+            )}
           </div>
+          <a
+            href={BUY_URL}
+            className="mt-4 inline-block text-sm text-slate-500 hover:text-slate-800 underline underline-offset-4 decoration-slate-300 hover:decoration-slate-500"
+          >
+            Pirkti dabar
+          </a>
         </div>
       </div>
     </div>
