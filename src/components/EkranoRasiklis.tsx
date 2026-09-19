@@ -32,14 +32,14 @@ function FeatureTable({ items }: { items: string[] }) {
       {items.map((item, index) => (
         <div
           key={item}
-          className={`flex items-center justify-between gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 ${
+          className={`flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 ${
             index % 2 === 0 ? 'bg-white' : 'bg-slate-50/60'
           }`}
         >
-          <span className="min-w-0 flex-1 text-xs sm:text-sm leading-snug text-slate-600">{item}</span>
           <div className="shrink-0">
             <FeatureCheck />
           </div>
+          <span className="min-w-0 flex-1 text-xs sm:text-sm leading-snug text-slate-600">{item}</span>
         </div>
       ))}
     </div>
