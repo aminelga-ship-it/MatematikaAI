@@ -7,10 +7,14 @@ const SETUP_URL =
   'https://github.com/aminelga-ship-it/ekrano-rasiklis/raw/downloads/EkranoRasiklis-Setup.exe';
 
 const features = [
-  'Piešimas ant ekrano ir balta lenta',
-  '7 dienos nemokamai, tada vienkartinis 9,99 €',
-  'Veikia Windows kompiuteryje, be Python',
-  'Licencijos raktas po apmokėjimo ateina iškart',
+  'Du rėžimai: piešimas ant ekrano langų ir balta lenta',
+  'Mokytojas ir mokinys gali rašyti ekrane tuo pačiu metu',
+  'Vaizdo dalinimo sustabdymo ("Freeze") funkcija', 
+  'standartinių grafikų, koordinačių plokštumų, figūrų įkėlimo funkcija',
+  'Valdymas meniu ir karštaisiais klavišais',
+  'Galimybė prisitaikyti programą pagal savo poreikius',
+  '7 dienų bandomasis laikotarpis, vėliau vienkartinis 9,99 € mokestis',
+  'Veikia tik Windows kompiuteryje',
 ];
 
 export default function EkranoRasiklis() {
@@ -37,8 +41,7 @@ export default function EkranoRasiklis() {
           </div>
 
           <p className="mt-6 text-slate-600 leading-relaxed">
-            Pieškite ant langų ir baltos lentos pamokų metu. Parsisiųskite, išbandykite 7 dienas,
-            tada atrakinkite vienkartiniu mokėjimu.
+            Pieškite ant langų ir baltos lentos. Parsisiųskite ir išbandykite.
           </p>
 
           <ul className="mt-6 space-y-2">
@@ -56,7 +59,7 @@ export default function EkranoRasiklis() {
               className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800"
             >
               <Download className="w-4 h-4" />
-              Parsisiųsti Setup
+              Parsisiųsti
             </a>
             <a
               href={BUY_URL}
