@@ -2,7 +2,9 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Check, Download, PenTool, Shield } from 'lucide-react';
 
 const BUY_URL = 'https://buy.stripe.com/aFa3cn9kg1fr2WMbum8k800';
-const SETUP_URL = import.meta.env.VITE_EKRASIKLIS_SETUP_URL as string | undefined;
+const SETUP_URL =
+  import.meta.env.VITE_EKRASIKLIS_SETUP_URL ||
+  'https://github.com/aminelga-ship-it/ekrano-rasiklis/raw/downloads/EkranoRasiklis-Setup.exe';
 
 const features = [
   'Piešimas ant ekrano ir balta lenta',
@@ -49,20 +51,13 @@ export default function EkranoRasiklis() {
           </ul>
 
           <div className="mt-8 flex flex-col sm:flex-row gap-3">
-            {SETUP_URL ? (
-              <a
-                href={SETUP_URL}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800"
-              >
-                <Download className="w-4 h-4" />
-                Parsisiųsti Setup
-              </a>
-            ) : (
-              <span className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-100 text-slate-500 font-semibold">
-                <Download className="w-4 h-4" />
-                Parsisiuntimas bus čia
-              </span>
-            )}
+            <a
+              href={SETUP_URL}
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800"
+            >
+              <Download className="w-4 h-4" />
+              Parsisiųsti Setup
+            </a>
             <a
               href={BUY_URL}
               className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700"
