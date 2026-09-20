@@ -66,7 +66,7 @@ export async function sendLicenseEmail(email: string, license: string): Promise<
   const from = process.env.LICENSE_FROM_EMAIL || 'MatematikaAI <beth.t@example.com>';
   const downloadUrl =
     process.env.EKRASIKLIS_SETUP_URL ||
-    'https://github.com/aminelga-ship-it/ekrano-rasiklis/raw/downloads/EkranoRasiklis-Setup.exe';
+    'https://github.com/aminelga-ship-it/ekrano-rasiklis/releases/latest/download/EkranoRasiklis-Setup.exe';
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {

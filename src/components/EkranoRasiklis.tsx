@@ -4,7 +4,7 @@ import { ArrowLeft, Check, Download, PenTool, Play } from 'lucide-react';
 const BUY_URL = 'https://buy.stripe.com/aFa3cn9kg1fr2WMbum8k800';
 const SETUP_URL =
   import.meta.env.VITE_EKRASIKLIS_SETUP_URL ||
-  'https://github.com/aminelga-ship-it/ekrano-rasiklis/raw/downloads/EkranoRasiklis-Setup.exe';
+  'https://github.com/aminelga-ship-it/ekrano-rasiklis/releases/latest/download/EkranoRasiklis-Setup.exe';
 const VIDEO_URL = (import.meta.env.VITE_EKRASIKLIS_VIDEO_URL || '').trim();
 
 const features = [
@@ -77,11 +77,12 @@ export default function EkranoRasiklis() {
             <div className="mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
               <a
                 href={SETUP_URL}
+                download="EkranoRasiklis-Setup.exe"
                 className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-sm bg-blue-600 text-white font-semibold shadow-md shadow-blue-600/15 hover:bg-blue-700 transition-colors"
               >
-                <Download className="w-4 h-4" />
-                Parsisiųsti
-              </a>
+              <Download className="w-4 h-4" />
+              Parsisiųsti
+            </a>
               {VIDEO_URL ? (
                 <a
                   href={VIDEO_URL}
@@ -102,6 +103,10 @@ export default function EkranoRasiklis() {
                 </span>
               )}
             </div>
+            <p className="mt-2 text-[11px] leading-snug text-slate-500 text-center">
+              Failas turi vadintis <span className="font-medium text-slate-700">EkranoRasiklis-Setup.exe</span>
+              (~42 MB). Jei Chrome rašo „Nepatvirtintas“, atsisiuntimuose spauskite Palikti — neatidarykite su Word.
+            </p>
 
             <a
               href={BUY_URL}
