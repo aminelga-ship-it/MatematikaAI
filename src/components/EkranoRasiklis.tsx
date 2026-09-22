@@ -103,11 +103,7 @@ export default function EkranoRasiklis() {
                 </span>
               )}
             </div>
-            <p className="mt-2 text-[11px] leading-snug text-slate-500 text-center">
-              Failas turi vadintis <span className="font-medium text-slate-700">EkranoRasiklis-Setup.exe</span>
-              (~42 MB). Jei Chrome rašo „Nepatvirtintas“, atsisiuntimuose spauskite Palikti — neatidarykite su Word.
-            </p>
-
+          
             <a
               href={BUY_URL}
               className="mt-2 block text-center text-xs text-slate-500 hover:text-slate-800 underline underline-offset-2 decoration-slate-300 hover:decoration-slate-500"

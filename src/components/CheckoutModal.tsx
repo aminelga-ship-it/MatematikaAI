@@ -17,7 +17,7 @@ const phonePattern = /^\+?[0-9\s\-()]{8,20}$/;
 
 const DELIVERY_TIME: Record<string, string> = {
   'fx-991-es': 'Numatomas pristatymo laikas: 1–3 dienos priklausomai nuo siuntimo būdo.',
-  'fx-991-ex': 'Numatomas pristatymo laikas: 7–10 dienų',
+  'fx-991-ex': 'Numatomas pristatymo laikas: 1–3 dienos',
 };
 
 export default function CheckoutModal({
