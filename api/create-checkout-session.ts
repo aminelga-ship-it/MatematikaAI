@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { config } from 'dotenv';
+import { shouldApplyStripeShippingRate } from './_lib/orderPricing';
 
 config({ path: '.local.env' });
 
@@ -79,18 +80,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Stripe is not configured' });
   }
 
-  const { calculatorId, shippingMethod, terminal, postalAddress, recipient } = req.body as {
-    calculatorId?: string;
-    shippingMethod?: string;
-    terminal?: TerminalPayload;
-    postalAddress?: PostalAddressPayload;
-    recipient?: RecipientPayload;
-  };
+  const { calculatorId, shippingMethod, terminal, postalAddress, recipient, quantity: rawQuantity } =
+    req.body as {
+      calculatorId?: string;
+      shippingMethod?: string;
+      quantity?: number;
+      terminal?: TerminalPayload;
+      postalAddress?: PostalAddressPayload;
+      recipient?: RecipientPayload;
+    };
+
+  const quantity =
+    typeof rawQuantity === 'number' && Number.isInteger(rawQuantity) ? rawQuantity : 1;
 
   const priceId = calculatorId ? CALCULATOR_PRICES[calculatorId] : undefined;
 
   if (!priceId || !calculatorId) {
     return res.status(400).json({ error: 'Invalid calculator' });
+  }
+
+  if (quantity < 1 || quantity > 99) {
+    return res.status(400).json({ error: 'Netinkamas vienetų skaičius' });
   }
 
   if (!shippingMethod || !isShippingMethod(shippingMethod)) {
@@ -120,7 +130,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const shippingRateId = process.env.STRIPE_SHIPPING_RATE ?? process.env.STRIPE_PRICE_SHIPPING;
-  if (shippingMethod !== 'pickup-telsiai' && !shippingRateId) {
+  const needsShippingRate = shouldApplyStripeShippingRate(quantity, shippingMethod);
+  if (needsShippingRate && !shippingRateId) {
     return res.status(500).json({ error: 'Siuntimo tarifas nėra sukonfigūruotas' });
   }
 
@@ -137,6 +148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const orderMetadata: Record<string, string> = {
     calculatorId,
     calculatorName,
+    quantity: String(quantity),
     shippingMethod,
     shippingLabel,
     recipientFirstName: firstName,
@@ -162,6 +174,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const orderDescription = [
     calculatorName,
+    `${quantity} vnt.`,
     shippingLabel,
     `Gavėjas: ${recipientName}, ${phone}, ${email}`,
     deliverySummary,
@@ -170,7 +183,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const sessionParams: Stripe.Checkout.SessionCreateParams = {
     mode: 'payment',
     customer_email: email,
-    line_items: [{ price: priceId, quantity: 1 }],
+    line_items: [{ price: priceId, quantity }],
     success_url: `${origin}/skaiciuotuvai?success=true`,
     cancel_url: `${origin}/skaiciuotuvai?canceled=true`,
     metadata: orderMetadata,
@@ -180,7 +193,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     },
   };
 
-  if (shippingMethod !== 'pickup-telsiai' && shippingRateId) {
+  if (needsShippingRate && shippingRateId) {
     sessionParams.shipping_options = [{ shipping_rate: shippingRateId }];
   }
 

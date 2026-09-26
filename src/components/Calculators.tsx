@@ -386,7 +386,7 @@ export default function Calculators() {
                   Užsakyti
                 </button>
                 <p className="mt-3 text-center text-sm text-slate-500">
-                  Nemokamas atsiėmimas Telšiuose arba siuntimas +2 €
+                  Nemokamas atsiėmimas Telšiuose; siuntimas +2 € (nuo 3 vnt. – nemokamai)
                 </p>
               </div>
             </div>

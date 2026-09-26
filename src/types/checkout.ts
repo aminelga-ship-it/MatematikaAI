@@ -10,6 +10,7 @@ export type RecipientInfo = {
 
 export type CheckoutPayload = {
   calculatorId: string;
+  quantity: number;
   shippingMethod: ShippingMethod;
   recipient: RecipientInfo;
   terminal?: LpExpressTerminal;
