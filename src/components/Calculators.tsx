@@ -16,6 +16,7 @@ type CalculatorModel = {
   priceCompareUrl: string;
   summary: string;
   recommendation: string;
+  recommended?: boolean;
   modalImages: CalculatorImage[];
   features: {
     qrInstructions: boolean;
@@ -65,6 +66,7 @@ const models: CalculatorModel[] = [
     id: 'fx-991-ex',
     name: 'FX-991 EX ClassWiz',
     price: '29,99€',
+    recommended: true,
     coverImage: '/images/EX.png',
     priceCompareUrl:
       'https://www.kainos.lt/skaiciuotuvai/casio-calculator-fx-991cex-v1696547?gad_source=1&gad_campaignid=6443829327&gbraid=0AAAAADlYnfMaLZHINV2Bt-k1jU15_-FfZ&gclid=Cj0KCQjwkOvTBhDgARIsAKUNyRvrA7U-zkb3cGzGeU27GdMUzSVEfp5yPd2DPF56oszMUv_dZHi-rWEaAmv1EALw_wcB',
@@ -164,6 +166,20 @@ function ComparisonTable({ model }: { model: CalculatorModel }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function RecommendedBadge() {
+  return (
+    <div
+      className="pointer-events-none absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2"
+      role="img"
+      aria-label="Rekomenduojamas"
+    >
+      <span className="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-1.5 text-xs font-bold tracking-wide text-white shadow-sm whitespace-nowrap">
+        Rekomenduojamas
+      </span>
     </div>
   );
 }
@@ -334,13 +350,18 @@ export default function Calculators() {
           Palyginkite du populiariausius skaičiuotuvus ir pasirinkite tinkamiausią.
         </p>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-6 pt-3">
           {models.map((model) => (
             <div
               key={model.id}
-              className="group flex flex-col rounded-3xl bg-white ring-1 ring-slate-200 shadow-sm hover:shadow-xl hover:ring-blue-200 transition-all duration-300 overflow-hidden"
+              className={`group relative flex flex-col rounded-3xl bg-white shadow-sm hover:shadow-xl transition-all duration-300 ${
+                model.recommended
+                  ? 'mt-2 ring-2 ring-blue-500 hover:ring-blue-600'
+                  : 'ring-1 ring-slate-200 hover:ring-blue-200 overflow-hidden'
+              }`}
             >
-              <div className="p-4 sm:p-7">
+              {model.recommended && <RecommendedBadge />}
+              <div className={`p-4 sm:p-7 ${model.recommended ? 'overflow-hidden rounded-3xl' : ''}`}>
                 <button
                   onClick={() => setActiveModel(model)}
                   className="w-full text-left hover:bg-slate-50/50 transition-colors rounded-2xl"
