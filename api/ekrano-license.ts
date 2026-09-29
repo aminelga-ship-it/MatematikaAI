@@ -1,6 +1,4 @@
-import Stripe from 'stripe';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { config as loadEnv } from 'dotenv';
 import {
   isEkranoRasiklisSession,
   makeLicenseKey,
@@ -8,7 +6,15 @@ import {
   sessionPaid,
 } from './_lib/ekranoLicense';
 
-loadEnv({ path: '.local.env' });
+async function loadLocalEnvIfNeeded() {
+  if (process.env.STRIPE_SECRET_KEY) return;
+  try {
+    const { config } = await import('dotenv');
+    config({ path: '.local.env', quiet: true });
+  } catch {
+    // Production env is injected by Vercel.
+  }
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -20,14 +26,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Neteisinga mokėjimo sesija' });
   }
 
-  const secretKey = process.env.STRIPE_SECRET_KEY;
+  await loadLocalEnvIfNeeded();
+
+  const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
   if (!secretKey) {
     return res.status(500).json({ error: 'Stripe is not configured' });
   }
 
   try {
-    const stripe = new Stripe(secretKey);
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const stripeResponse = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
+      headers: { Authorization: `Bearer ${secretKey}` },
+    });
+    if (!stripeResponse.ok) {
+      return res.status(400).json({ error: 'Nepavyko patikrinti mokėjimo' });
+    }
+    const session = (await stripeResponse.json()) as {
+      metadata?: Record<string, string> | null;
+      payment_link?: string | { id?: string } | null;
+      customer_email?: string | null;
+      customer_details?: { email?: string | null } | null;
+      payment_status?: string | null;
+      status?: string | null;
+    };
     if (!isEkranoRasiklisSession(session) || !sessionPaid(session)) {
       return res.status(404).json({ error: 'Mokėjimas nerastas' });
     }

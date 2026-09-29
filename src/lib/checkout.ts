@@ -7,7 +7,13 @@ export async function createCheckoutSession(payload: CheckoutPayload): Promise<s
     body: JSON.stringify(payload),
   });
 
-  const data = (await response.json()) as { url?: string; error?: string };
+  const text = await response.text();
+  let data: { url?: string; error?: string } = {};
+  try {
+    data = text ? (JSON.parse(text) as { url?: string; error?: string }) : {};
+  } catch {
+    throw new Error('Nepavyko pradėti apmokėjimo. Bandykite dar kartą.');
+  }
 
   if (!response.ok || !data.url) {
     throw new Error(data.error ?? 'Nepavyko pradėti apmokėjimo');
