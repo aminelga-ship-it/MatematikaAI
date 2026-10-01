@@ -7,7 +7,7 @@ import {
   sendLicenseEmail,
   sessionEmail,
   sessionPaid,
-} from './_lib/ekranoLicense';
+} from './_lib/ekranoLicense.js';
 
 loadEnv({ path: '.local.env' });
 

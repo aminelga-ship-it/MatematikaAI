@@ -1,6 +1,6 @@
 import { timingSafeEqual } from 'node:crypto';
-import { normalizeVisit, summarizeVisits } from '../../src/lib/visitAnalytics';
-import { AnalyticsStorageError, analyticsStorageReady, readVisits, saveVisit } from './visitStore';
+import { normalizeVisit, summarizeVisits } from './visitMath.js';
+import { AnalyticsStorageError, analyticsStorageReady, readVisits, saveVisit } from './visitStore.js';
 
 type AnalyticsResult = {
   status: number;

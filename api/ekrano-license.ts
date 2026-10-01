@@ -4,7 +4,7 @@ import {
   makeLicenseKey,
   sessionEmail,
   sessionPaid,
-} from './_lib/ekranoLicense';
+} from './_lib/ekranoLicense.js';
 
 async function loadLocalEnvIfNeeded() {
   if (process.env.STRIPE_SECRET_KEY) return;

@@ -1,17 +1,11 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import {
-  BlobNotFoundError,
-  BlobPreconditionFailedError,
-  get,
-  put,
-} from '@vercel/blob';
-import {
   capSessions,
   mergeVisit,
   type VisitRecord,
   type VisitSnapshot,
-} from '../../src/lib/visitAnalytics';
+} from './visitMath.js';
 
 const FILE_PATH = path.join(process.cwd(), '.data', 'visit-analytics.json');
 const BLOB_PATH = 'analytics/visit-analytics.json';
@@ -103,7 +97,12 @@ async function streamToText(stream: ReadableStream<Uint8Array>): Promise<string>
   return new TextDecoder().decode(merged);
 }
 
+async function blobClient() {
+  return import('@vercel/blob');
+}
+
 async function readBlobStore(): Promise<Stored> {
+  const { get, BlobNotFoundError } = await blobClient();
   try {
     const result = await get(BLOB_PATH, { access: 'private', useCache: false });
     if (!result || result.statusCode !== 200 || !result.stream) return { data: emptyStore() };
@@ -118,6 +117,7 @@ async function readBlobStore(): Promise<Stored> {
 }
 
 async function writeBlobStore(data: StoreFile, etag?: string): Promise<void> {
+  const { put } = await blobClient();
   await put(BLOB_PATH, JSON.stringify(data), {
     access: 'private',
     addRandomSuffix: false,
@@ -155,6 +155,7 @@ export async function saveVisit(snapshot: VisitSnapshot): Promise<void> {
         await writeStore({ sessions }, current.etag);
         return;
       } catch (error) {
+        const { BlobPreconditionFailedError } = await blobClient();
         if (error instanceof BlobPreconditionFailedError && attempt < 3) continue;
         throw error;
       }

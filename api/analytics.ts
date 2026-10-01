@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { handleAnalytics } from './_lib/analyticsHandler';
+import { handleAnalytics } from './_lib/analyticsHandler.js';
 
 async function loadLocalEnvIfNeeded() {
   if (process.env.VERCEL) return;
