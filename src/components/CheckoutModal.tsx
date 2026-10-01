@@ -3,6 +3,7 @@ import { Loader2, MessageCircle, ShoppingCart, X } from 'lucide-react';
 import LpExpressWidget from '@/components/LpExpressWidget';
 import { CONTACT_EMAIL } from '@/data/tutors';
 import { createCheckoutSession } from '@/lib/checkout';
+import { noteLeftForPayment } from '@/lib/visitTracking';
 import {
   formatEur,
   orderSubtotalEur,
@@ -142,6 +143,7 @@ export default function CheckoutModal({
 
     try {
       const url = await createCheckoutSession(buildCheckoutPayload());
+      noteLeftForPayment();
       window.location.href = url;
     } catch (err) {
       onError(err instanceof Error ? err.message : 'Nepavyko pradėti apmokėjimo');

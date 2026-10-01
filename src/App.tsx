@@ -11,6 +11,8 @@ import Calculators from '@/components/Calculators';
 import EkranoRasiklis from '@/components/EkranoRasiklis';
 import EkranoRasiklisLicense from '@/components/EkranoRasiklisLicense';
 import { pageview } from '@/lib/gtag';
+import { startVisitTracking, trackOtherSection, trackPath } from '@/lib/visitTracking';
+import VisitStats from '@/components/VisitStats';
 
 type Page = 'home' | 'links';
 
@@ -25,6 +27,11 @@ function MainPages() {
     }
     if (p === 'tutors') {
       navigate('/korepetitoriai');
+      return;
+    }
+    if (p === 'links') {
+      trackOtherSection('Naudingos nuorodos');
+      setPage('links');
       return;
     }
     setPage(p as Page);
@@ -43,7 +50,12 @@ export default function App() {
   const location = useLocation();
 
   useEffect(() => {
+    startVisitTracking();
+  }, []);
+
+  useEffect(() => {
     pageview(location.pathname + location.search);
+    trackPath(location.pathname);
   }, [location]);
 
   return (
@@ -53,6 +65,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<MainPages />} />
           <Route path="/skaiciuotuvai" element={<Calculators />} />
+          <Route path="/statistika" element={<VisitStats />} />
           <Route path="/ekrano-rasiklis/raktas" element={<EkranoRasiklisLicense />} />
           <Route path="/ekrano-rasiklis" element={<EkranoRasiklis />} />
           <Route path="/korepetitoriai/uzklausa-gauta" element={<TutorThankYou />} />

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Check, X, ShoppingCart, Info, ZoomIn, Truck } from 'lucide-react';
 import CheckoutModal from '@/components/CheckoutModal';
+import { noteCalculatorDetails, noteCheckoutClosed, noteCheckoutOpened } from '@/lib/visitTracking';
 
 type CalculatorImage = {
   src: string;
@@ -305,6 +306,11 @@ export default function Calculators() {
       : null;
 
   useEffect(() => {
+    if (checkoutModel) noteCheckoutOpened();
+    else noteCheckoutClosed();
+  }, [checkoutModel]);
+
+  useEffect(() => {
     if (!paymentStatus) return;
     const timer = setTimeout(() => {
       setSearchParams(
@@ -401,7 +407,10 @@ export default function Calculators() {
               {model.recommended && <RecommendedBadge />}
               <div className={`p-4 sm:p-7 ${model.recommended ? 'overflow-hidden rounded-3xl' : ''}`}>
                 <button
-                  onClick={() => setActiveModel(model)}
+                  onClick={() => {
+                    noteCalculatorDetails();
+                    setActiveModel(model);
+                  }}
                   className="w-full text-left hover:bg-slate-50/50 transition-colors rounded-2xl"
                 >
                   <div className="flex justify-center mb-6">
