@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { handleAnalytics } from './_lib/analyticsHandler';
 
 async function loadLocalEnvIfNeeded() {
   if (process.env.VERCEL) return;
@@ -36,15 +35,21 @@ function requestBody(body: unknown): unknown {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  await loadLocalEnvIfNeeded();
-  const result = await handleAnalytics({
-    method: req.method,
-    body: requestBody(req.body),
-    key: headerValue(req.headers['x-analytics-key']),
-    origin: headerValue(req.headers.origin),
-  });
+  try {
+    await loadLocalEnvIfNeeded();
+    const { handleAnalytics } = await import('./_lib/analyticsHandler');
+    const result = await handleAnalytics({
+      method: req.method,
+      body: requestBody(req.body),
+      key: headerValue(req.headers['x-analytics-key']),
+      origin: headerValue(req.headers.origin),
+    });
 
-  res.setHeader('Cache-Control', 'no-store');
-  if (result.body === undefined) return res.status(result.status).end();
-  return res.status(result.status).json(result.body);
+    res.setHeader('Cache-Control', 'no-store');
+    if (result.body === undefined) return res.status(result.status).end();
+    return res.status(result.status).json(result.body);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Nežinoma klaida';
+    return res.status(500).json({ error: 'server', message: message.slice(0, 300) });
+  }
 }
