@@ -94,6 +94,17 @@ const models: CalculatorModel[] = [
   },
 ];
 
+function findOrderModel(value: string | null): CalculatorModel | null {
+  if (value === null) return null;
+  const key = value.trim().toLowerCase();
+  if (key === '' || key === '1' || key === 'rekomenduojamas') {
+    return models.find((model) => model.recommended) ?? models[0] ?? null;
+  }
+  if (key === 'ex') return models.find((model) => model.id === 'fx-991-ex') ?? null;
+  if (key === 'es') return models.find((model) => model.id === 'fx-991-es') ?? null;
+  return models.find((model) => model.id === key) ?? null;
+}
+
 const comparisonRows: { label: string; key: (m: CalculatorModel) => string | boolean }[] = [
   { label: 'QR kodas su instrukcijomis moksleiviams', key: (m) => m.features.qrInstructions },
   { label: 'QR kodas su 7–12 kl. teorija', key: (m) => m.features.qrTheory },
@@ -284,9 +295,9 @@ function Modal({ model, onClose }: { model: CalculatorModel; onClose: () => void
 
 export default function Calculators() {
   const [activeModel, setActiveModel] = useState<CalculatorModel | null>(null);
-  const [checkoutModel, setCheckoutModel] = useState<CalculatorModel | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const checkoutModel = findOrderModel(searchParams.get('uzsakyti'));
   const paymentStatus = searchParams.get('success')
     ? 'success'
     : searchParams.get('canceled')
@@ -295,13 +306,40 @@ export default function Calculators() {
 
   useEffect(() => {
     if (!paymentStatus) return;
-    const timer = setTimeout(() => setSearchParams({}, { replace: true }), 8000);
+    const timer = setTimeout(() => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete('success');
+          next.delete('canceled');
+          return next;
+        },
+        { replace: true },
+      );
+    }, 8000);
     return () => clearTimeout(timer);
   }, [paymentStatus, setSearchParams]);
 
   const handleOrder = (model: CalculatorModel) => {
     setError(null);
-    setCheckoutModel(model);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete('success');
+      next.delete('canceled');
+      next.set('uzsakyti', model.id);
+      return next;
+    });
+  };
+
+  const closeCheckout = () => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('uzsakyti');
+        return next;
+      },
+      { replace: true },
+    );
   };
 
   return (
@@ -421,10 +459,10 @@ export default function Calculators() {
         <CheckoutModal
           calculatorId={checkoutModel.id}
           calculatorName={checkoutModel.name}
-          onClose={() => setCheckoutModel(null)}
+          onClose={closeCheckout}
           onError={(message) => {
             setError(message);
-            setCheckoutModel(null);
+            closeCheckout();
           }}
         />
       )}
