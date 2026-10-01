@@ -75,7 +75,8 @@ export async function handleAnalytics(input: {
     } catch (error) {
       const failure = storageFailure(error);
       if (failure) return failure;
-      throw error;
+      const message = error instanceof Error ? error.message : 'Nežinoma klaida';
+      return { status: 500, body: { error: 'server', message: message.slice(0, 300) } };
     }
   }
 
@@ -88,7 +89,8 @@ export async function handleAnalytics(input: {
     } catch (error) {
       const failure = storageFailure(error);
       if (failure) return failure;
-      throw error;
+      const message = error instanceof Error ? error.message : 'Nežinoma klaida';
+      return { status: 500, body: { error: 'server', message: message.slice(0, 300) } };
     }
   }
 

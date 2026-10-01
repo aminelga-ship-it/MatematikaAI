@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { handleAnalytics } from './_lib/analyticsHandler';
 
 async function loadLocalEnvIfNeeded() {
   if (process.env.VERCEL) return;
@@ -37,7 +38,6 @@ function requestBody(body: unknown): unknown {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     await loadLocalEnvIfNeeded();
-    const { handleAnalytics } = await import('./_lib/analyticsHandler');
     const result = await handleAnalytics({
       method: req.method,
       body: requestBody(req.body),
