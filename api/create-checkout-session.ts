@@ -10,6 +10,19 @@ const CALCULATOR_NAMES: Record<string, string> = {
   'fx-991-ex': 'FX-991 EX ClassWiz',
 };
 
+const LV_STRIPE_PRODUCTS: Record<string, { name: string; description: string; unitAmount: number }> = {
+  'fx-991-es': {
+    name: 'Skolēna komplekts 1',
+    description: 'Kalkulators FX-991 ES un interaktīva instrukcija latviešu valodā.',
+    unitAmount: 2499,
+  },
+  'fx-991-ex': {
+    name: 'Skolēna komplekts 2',
+    description: 'Kalkulators FX-991 EX un interaktīva instrukcija latviešu valodā.',
+    unitAmount: 2999,
+  },
+};
+
 const SHIPPING_METHOD_LABELS: Record<string, string> = {
   'pickup-telsiai': 'Atsiėmimas Telšiuose',
   'lp-express': 'LP Express paštomatas',
@@ -258,7 +271,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const params = new URLSearchParams();
     params.append('mode', 'payment');
     params.append('customer_email', email);
-    params.append('line_items[0][price]', priceId);
+    const lvProduct = locale === 'lv' ? LV_STRIPE_PRODUCTS[calculatorId] : undefined;
+    if (lvProduct) {
+      params.append('line_items[0][price_data][currency]', 'eur');
+      params.append('line_items[0][price_data][unit_amount]', String(lvProduct.unitAmount));
+      params.append('line_items[0][price_data][product_data][name]', lvProduct.name);
+      params.append('line_items[0][price_data][product_data][description]', lvProduct.description);
+    } else {
+      params.append('line_items[0][price]', priceId);
+    }
     params.append('line_items[0][quantity]', String(quantity));
     if (locale === 'lv') {
       params.append('locale', 'lv');

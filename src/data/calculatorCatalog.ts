@@ -102,6 +102,7 @@ const ltModels: CalculatorModel[] = [
       { src: '/images/EX_meniu.png', alt: 'Meniu' },
       { src: '/images/EX_gidas.png', alt: 'Gidas' },
       { src: '/images/Teorija.png', alt: 'Teorija' },
+      { src: '/images/EX_deze.png', alt: 'Su dėžute' },
     ],
     features: {
       qrInstructions: true,
@@ -159,7 +160,8 @@ const lvModels: CalculatorModel[] = [
     recommendation: 'Ieteicams tiem, kam ietaupīt 5 eiro nav būtiski',
     modalImages: [
       { src: '/images/EX_meniu.png', alt: 'Izvēlne' },
-      { src: '/images/EX_gidas.png', alt: 'Gids' },
+      { src: '/images/EX_gidas_lv.png', alt: 'Gids' },
+      { src: '/images/EX_deze.png', alt: 'Ar kastīti' },
     ],
     features: {
       qrInstructions: true,
