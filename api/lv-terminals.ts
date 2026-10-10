@@ -1,5 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { isLockerCarrier, lockersByCity } from './_lib/lvLockers';
+import lockers from '../src/data/lvLockers.json';
+import { isLockerCarrier } from './_lib/lvLockers';
+
+const file = lockers as {
+  unisend: Record<string, unknown[]>;
+  omniva: Record<string, unknown[]>;
+};
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -11,11 +17,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Unknown carrier' });
   }
 
-  try {
-    const terminals = await lockersByCity(carrier);
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-    return res.status(200).json({ terminals });
-  } catch {
-    return res.status(500).json({ error: 'Neizdevās ielādēt pakomātus' });
-  }
+  return res.status(200).json({ terminals: file[carrier] });
 }

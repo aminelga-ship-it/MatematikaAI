@@ -1,16 +1,15 @@
 import type { LpExpressTerminalsByCity } from '@/types/lpExpress';
 
+type LockerFile = {
+  unisend: LpExpressTerminalsByCity;
+  omniva: LpExpressTerminalsByCity;
+};
+
 export async function fetchLvLockers(carrier: 'unisend' | 'omniva'): Promise<LpExpressTerminalsByCity> {
-  const response = await fetch(`/api/lv-terminals?carrier=${carrier}`);
-
-  const data = (await response.json()) as {
-    terminals?: LpExpressTerminalsByCity;
-    error?: string;
-  };
-
-  if (!response.ok || !data.terminals) {
-    throw new Error(data.error ?? 'Neizdevās ielādēt pakomātus');
+  const file = (await import('@/data/lvLockers.json')).default as LockerFile;
+  const terminals = file[carrier];
+  if (!terminals || Object.keys(terminals).length === 0) {
+    throw new Error('Neizdevās ielādēt pakomātus');
   }
-
-  return data.terminals;
+  return terminals;
 }

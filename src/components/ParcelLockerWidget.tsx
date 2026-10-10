@@ -57,9 +57,9 @@ export default function ParcelLockerWidget({ carrier, value, onChange }: ParcelL
           const firstCity = Object.keys(terminals).sort((a, b) => a.localeCompare(b, 'lv'))[0] ?? '';
           setSelectedCity(firstCity);
         }
-      } catch (err) {
+      } catch {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Neizdevās ielādēt pakomātus');
+          setError('Neizdevās ielādēt pakomātus');
         }
       } finally {
         if (!cancelled) {

@@ -141,10 +141,10 @@ const checkoutText: Record<Market, CheckoutText> = {
     lastName: 'Uzvārds',
     phone: 'Tālrunis',
     email: 'E-pasts',
-    firstNamePlaceholder: 'Jānis',
-    lastNamePlaceholder: 'Bērziņš',
-    phonePlaceholder: '+37120000000',
-    emailPlaceholder: 'vards@epasts.lv',
+    firstNamePlaceholder: '',
+    lastNamePlaceholder: '',
+    phonePlaceholder: '+371',
+    emailPlaceholder: '',
     street: 'Adrese',
     streetPlaceholder: 'Iela, mājas nr., dzīvoklis',
     city: 'Pilsēta',
@@ -393,7 +393,7 @@ export default function CheckoutModal({
   };
 
   const inputClassName =
-    'w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-800 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200';
+    'w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200';
 
   const busy = loading || discountLoading;
 
@@ -539,7 +539,10 @@ export default function CheckoutModal({
                   type="text"
                   autoComplete="given-name"
                   value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  onChange={(e) => {
+                    setFirstName(e.target.value);
+                    if (e.target.value.trim()) setValidationError(null);
+                  }}
                   className={inputClassName}
                   placeholder={text.firstNamePlaceholder}
                 />
