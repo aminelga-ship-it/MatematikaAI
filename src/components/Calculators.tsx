@@ -1,122 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Check, X, ShoppingCart, Info, ZoomIn, Truck } from 'lucide-react';
+import { ArrowLeft, Check, X, ShoppingCart, Info, ZoomIn } from 'lucide-react';
 import CheckoutModal from '@/components/CheckoutModal';
+import {
+  calculatorModels,
+  calculatorPageText,
+  comparisonRows,
+  findOrderModel,
+  type CalculatorImage,
+  type CalculatorModel,
+  type CalculatorPageText,
+  type ComparisonRow,
+} from '@/data/calculatorCatalog';
 import { noteCalculatorDetails, noteCheckoutClosed, noteCheckoutOpened } from '@/lib/visitTracking';
-
-type CalculatorImage = {
-  src: string;
-  alt: string;
-};
-
-type CalculatorModel = {
-  id: string;
-  name: string;
-  price: string;
-  coverImage: string;
-  priceCompareUrl: string;
-  summary: string;
-  recommendation: string;
-  recommended?: boolean;
-  modalImages: CalculatorImage[];
-  features: {
-    qrInstructions: boolean;
-    qrTheory: boolean;
-    screen: string;
-    irrationalNumbers: boolean;
-    integrals: boolean;
-    equations: boolean;
-    vectors: boolean;
-    inequalities: boolean;
-    speed: string;
-    otherLabel: string | null;
-    other: string | null;
-  };
-};
-
-const models: CalculatorModel[] = [
-  {
-    id: 'fx-991-es',
-    name: 'FX-991 ES 2nd edition',
-    price: '24,99€',
-    coverImage: '/images/ES.png',
-    priceCompareUrl: 'https://www.kaina24.lt/p/skaiciuotuvas-casio-fx-991esplus-2-juodas/',
-    summary:
-      'Skaičiuotuvas iš esmės turi visas reikalingas funkcijas mokykloje, išskyrus nelygybių sprendimą. Pagrindinė žemesnės kainos priežastis yra šiek tiek silpnesnis procesorius (dėl to itin sudėtingus skaičiavimus atlieka su 5-10 sek. uždelsimu) ir prastesnis ekranas.',
-    recommendation: 'Rekomenduojamas taupantiems, nes gaunate ~99% funkcijų už mažesnę kainą',
-    modalImages: [
-      { src: '/images/ES_meniu.png', alt: 'Meniu' },
-      { src: '/images/ES_gidas.png', alt: 'Gidas' },
-      { src: '/images/Teorija.png', alt: 'Teorija' },
-    ],
-    features: {
-      qrInstructions: true,
-      qrTheory: true,
-      screen: 'Aiškus',
-      irrationalNumbers: true,
-      integrals: true,
-      equations: true,
-      vectors: true,
-      inequalities: false,
-      speed: 'Itin sudėtingose užduotyse yra 5-10 sek. uždelsimas',
-      otherLabel: null,
-      other: null,
-    },
-  },
-  {
-    id: 'fx-991-ex',
-    name: 'FX-991 EX ClassWiz',
-    price: '29,99€',
-    recommended: true,
-    coverImage: '/images/EX.png',
-    priceCompareUrl:
-      'https://www.kainos.lt/skaiciuotuvai/casio-calculator-fx-991cex-v1696547?gad_source=1&gad_campaignid=6443829327&gbraid=0AAAAADlYnfMaLZHINV2Bt-k1jU15_-FfZ&gclid=Cj0KCQjwkOvTBhDgARIsAKUNyRvrA7U-zkb3cGzGeU27GdMUzSVEfp5yPd2DPF56oszMUv_dZHi-rWEaAmv1EALw_wcB',
-    summary: 'Tai yra pats geriausias ir galingiausias leidžiamas skaičiuotuvas mokykloje',
-    recommendation: 'Rekomenduojamas tiems, kam sutaupyti 5 Eur nėra reikšminga',
-    modalImages: [
-      { src: '/images/EX_meniu.png', alt: 'Meniu' },
-      { src: '/images/EX_gidas.png', alt: 'Gidas' },
-      { src: '/images/Teorija.png', alt: 'Teorija' },
-    ],
-    features: {
-      qrInstructions: true,
-      qrTheory: true,
-      screen: 'Modernus',
-      irrationalNumbers: true,
-      integrals: true,
-      equations: true,
-      vectors: true,
-      inequalities: true,
-      speed: 'Greitas',
-      otherLabel: 'Kiti privalumai',
-      other:
-        'Gali nustatyti parabrolės viršūnės koordinates, proporcijų skaičiavimas, pilnesni meniu pavadinimai, didesnės raiškos ekranas',
-    },
-  },
-];
-
-function findOrderModel(value: string | null): CalculatorModel | null {
-  if (value === null) return null;
-  const key = value.trim().toLowerCase();
-  if (key === '' || key === '1' || key === 'rekomenduojamas') {
-    return models.find((model) => model.recommended) ?? models[0] ?? null;
-  }
-  if (key === 'ex') return models.find((model) => model.id === 'fx-991-ex') ?? null;
-  if (key === 'es') return models.find((model) => model.id === 'fx-991-es') ?? null;
-  return models.find((model) => model.id === key) ?? null;
-}
-
-const comparisonRows: { label: string; key: (m: CalculatorModel) => string | boolean }[] = [
-  { label: 'QR kodas su instrukcijomis moksleiviams', key: (m) => m.features.qrInstructions },
-  { label: 'QR kodas su 7–12 kl. teorija', key: (m) => m.features.qrTheory },
-  { label: 'Ekranas', key: (m) => m.features.screen },
-  { label: 'Iracionalūs skaičiai', key: (m) => m.features.irrationalNumbers },
-  { label: 'Integralų skaičiavimas', key: (m) => m.features.integrals },
-  { label: 'Lygčių sprendimas', key: (m) => m.features.equations },
-  { label: 'Vektorinis skaičiavimas', key: (m) => m.features.vectors },
-  { label: 'Nelygybių sprendimas', key: (m) => m.features.inequalities },
-  { label: 'Greitis', key: (m) => m.features.speed },
-];
+import type { Market } from '@/types/market';
 
 function BooleanCell({ value }: { value: boolean }) {
   return value ? (
@@ -130,16 +27,24 @@ function BooleanCell({ value }: { value: boolean }) {
   );
 }
 
-function ComparisonTable({ model }: { model: CalculatorModel }) {
+function ComparisonTable({
+  model,
+  rows: featureRows,
+  priceLabel,
+}: {
+  model: CalculatorModel;
+  rows: ComparisonRow[];
+  priceLabel: string;
+}) {
   const rows = [
-    ...comparisonRows.map((row) => ({
+    ...featureRows.map((row) => ({
       label: row.label,
       value: row.key(model),
     })),
     ...(model.features.otherLabel && model.features.other
       ? [{ label: model.features.otherLabel, value: model.features.other }]
       : []),
-    { label: 'Kaina', value: model.price, isPrice: true },
+    { label: priceLabel, value: model.price, isPrice: true },
   ];
 
   return (
@@ -182,21 +87,29 @@ function ComparisonTable({ model }: { model: CalculatorModel }) {
   );
 }
 
-function RecommendedBadge() {
+function RecommendedBadge({ label }: { label: string }) {
   return (
     <div
       className="pointer-events-none absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2"
       role="img"
-      aria-label="Rekomenduojamas"
+      aria-label={label}
     >
       <span className="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-1.5 text-xs font-bold tracking-wide text-white shadow-sm whitespace-nowrap">
-        Rekomenduojamas
+        {label}
       </span>
     </div>
   );
 }
 
-function ImageLightbox({ image, onClose }: { image: CalculatorImage; onClose: () => void }) {
+function ImageLightbox({
+  image,
+  closeLabel,
+  onClose,
+}: {
+  image: CalculatorImage;
+  closeLabel: string;
+  onClose: () => void;
+}) {
   return (
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-8 bg-slate-950/85 backdrop-blur-sm animate-fade-in"
@@ -205,7 +118,7 @@ function ImageLightbox({ image, onClose }: { image: CalculatorImage; onClose: ()
       <button
         onClick={onClose}
         className="absolute top-5 right-5 inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors z-10"
-        aria-label="Uždaryti nuotrauką"
+        aria-label={closeLabel}
       >
         <X className="w-5 h-5" />
       </button>
@@ -219,7 +132,15 @@ function ImageLightbox({ image, onClose }: { image: CalculatorImage; onClose: ()
   );
 }
 
-function Modal({ model, onClose }: { model: CalculatorModel; onClose: () => void }) {
+function Modal({
+  model,
+  text,
+  onClose,
+}: {
+  model: CalculatorModel;
+  text: CalculatorPageText;
+  onClose: () => void;
+}) {
   const [zoomedImage, setZoomedImage] = useState<CalculatorImage | null>(null);
 
   return (
@@ -235,7 +156,7 @@ function Modal({ model, onClose }: { model: CalculatorModel; onClose: () => void
           <button
             onClick={onClose}
             className="absolute top-5 right-5 inline-flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors z-10"
-            aria-label="Uždaryti"
+            aria-label={text.close}
           >
             <X className="w-5 h-5" />
           </button>
@@ -247,7 +168,7 @@ function Modal({ model, onClose }: { model: CalculatorModel; onClose: () => void
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-slate-900">{model.name}</h2>
-                <p className="text-slate-500 mt-0.5">Spauskite nuotrauką, kad išdidintumėte</p>
+                <p className="text-slate-500 mt-0.5">{text.zoomHint}</p>
               </div>
             </div>
 
@@ -267,7 +188,7 @@ function Modal({ model, onClose }: { model: CalculatorModel; onClose: () => void
                     />
                     <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-slate-900/70 px-2.5 py-1 text-[11px] font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity">
                       <ZoomIn className="w-3.5 h-3.5" />
-                      Didinti
+                      {text.zoom}
                     </span>
                   </div>
                   <span className="px-3 pb-3 text-sm font-medium text-slate-600">{image.alt}</span>
@@ -277,11 +198,11 @@ function Modal({ model, onClose }: { model: CalculatorModel; onClose: () => void
 
             <div className="mt-6 space-y-4">
               <div className="rounded-2xl bg-slate-50 ring-1 ring-slate-200 p-5">
-                <h3 className="font-semibold text-slate-700 mb-2">Trumpai</h3>
+                <h3 className="font-semibold text-slate-700 mb-2">{text.briefly}</h3>
                 <p className="text-sm text-slate-600 leading-relaxed">{model.summary}</p>
               </div>
               <div className="rounded-2xl bg-slate-50 ring-1 ring-slate-200 p-5">
-                <h3 className="font-semibold text-slate-700 mb-2">Rekomendacija</h3>
+                <h3 className="font-semibold text-slate-700 mb-2">{text.recommendation}</h3>
                 <p className="text-sm text-slate-600 leading-relaxed">{model.recommendation}</p>
               </div>
             </div>
@@ -289,16 +210,30 @@ function Modal({ model, onClose }: { model: CalculatorModel; onClose: () => void
         </div>
       </div>
 
-      {zoomedImage && <ImageLightbox image={zoomedImage} onClose={() => setZoomedImage(null)} />}
+      {zoomedImage && (
+        <ImageLightbox image={zoomedImage} closeLabel={text.closePhoto} onClose={() => setZoomedImage(null)} />
+      )}
     </>
   );
 }
 
-export default function Calculators() {
+export default function Calculators({ market = 'lt' }: { market?: Market }) {
+  const text = calculatorPageText(market);
+  const models = calculatorModels(market);
+  const featureRows = comparisonRows(market);
   const [activeModel, setActiveModel] = useState<CalculatorModel | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const checkoutModel = findOrderModel(searchParams.get('uzsakyti'));
+  const checkoutModel = findOrderModel(models, searchParams.get('uzsakyti'));
+
+  useEffect(() => {
+    if (market !== 'lv') return;
+    const previous = document.documentElement.lang;
+    document.documentElement.lang = 'lv';
+    return () => {
+      document.documentElement.lang = previous;
+    };
+  }, [market]);
   const paymentStatus = searchParams.get('success')
     ? 'success'
     : searchParams.get('canceled')
@@ -356,30 +291,26 @@ export default function Calculators() {
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors mb-10"
         >
           <ArrowLeft className="w-4 h-4" />
-          Grįžti į pradžią
+          {text.back}
         </Link>
 
         {paymentStatus === 'success' && (
           <div className="mb-8 rounded-2xl bg-emerald-50 ring-1 ring-emerald-200 px-5 py-4 text-emerald-800">
-            <p className="font-semibold">Apmokėjimas sėkmingas!</p>
-            <p className="mt-1 text-sm text-emerald-700">
-              Ačiū už užsakymą. Netrukus susisieksime dėl pristatymo arba atsiėmimo.
-            </p>
+            <p className="font-semibold">{text.successTitle}</p>
+            <p className="mt-1 text-sm text-emerald-700">{text.successBody}</p>
           </div>
         )}
 
         {paymentStatus === 'canceled' && (
           <div className="mb-8 rounded-2xl bg-amber-50 ring-1 ring-amber-200 px-5 py-4 text-amber-800">
-            <p className="font-semibold">Apmokėjimas atšauktas</p>
-            <p className="mt-1 text-sm text-amber-700">
-              Galite bandyti dar kartą, kai būsite pasiruošę.
-            </p>
+            <p className="font-semibold">{text.canceledTitle}</p>
+            <p className="mt-1 text-sm text-amber-700">{text.canceledBody}</p>
           </div>
         )}
 
         {error && (
           <div className="mb-8 rounded-2xl bg-red-50 ring-1 ring-red-200 px-5 py-4 text-red-800">
-            <p className="font-semibold">Klaida</p>
+            <p className="font-semibold">{text.errorTitle}</p>
             <p className="mt-1 text-sm text-red-700">{error}</p>
           </div>
         )}
@@ -388,11 +319,9 @@ export default function Calculators() {
           <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-blue-200">
             <Info className="w-7 h-7" />
           </div>
-          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900">Skaičiuotuvų palyginimas</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900">{text.title}</h1>
         </div>
-        <p className="text-slate-500 text-lg max-w-2xl mb-3">
-          Palyginkite du populiariausius skaičiuotuvus ir pasirinkite tinkamiausią.
-        </p>
+        <p className="text-slate-500 text-lg max-w-2xl mb-3">{text.subtitle}</p>
 
         <div className="grid md:grid-cols-2 gap-6 pt-3">
           {models.map((model) => (
@@ -404,7 +333,7 @@ export default function Calculators() {
                   : 'ring-1 ring-slate-200 hover:ring-blue-200 overflow-hidden'
               }`}
             >
-              {model.recommended && <RecommendedBadge />}
+              {model.recommended && <RecommendedBadge label={text.recommended} />}
               <div className={`p-4 sm:p-7 ${model.recommended ? 'overflow-hidden rounded-3xl' : ''}`}>
                 <button
                   onClick={() => {
@@ -425,9 +354,7 @@ export default function Calculators() {
                   <h2 className="text-2xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
                     {model.name}
                   </h2>
-                  <p className="mt-2 text-sm text-slate-500">
-                    Spauskite, kad pamatytumėte daugiau informacijos
-                  </p>
+                  <p className="mt-2 text-sm text-slate-500">{text.moreInfo}</p>
                 </button>
                 <p className="mt-2 text-sm text-slate-500">
                   <a
@@ -436,36 +363,34 @@ export default function Calculators() {
                     rel="noreferrer"
                     className="underline underline-offset-2 hover:text-blue-600 transition-colors"
                   >
-                    Patikrinti kainas kitur
+                    {text.comparePrices}
                   </a>{' '}
-                  (įprastose parduotuvėse gaunate tik skaičiuotuvą be interaktyvaus gido ir 7-12 kl.
-                  teorijos)
+                  {text.comparePricesNote}
                 </p>
               </div>
 
               <div className="px-4 pb-6 sm:px-7 sm:pb-7 flex flex-col flex-1">
-                <ComparisonTable model={model} />
+                <ComparisonTable model={model} rows={featureRows} priceLabel={text.price} />
 
                 <button
                   onClick={() => handleOrder(model)}
                   className="mt-6 inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-colors"
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  Užsakyti
+                  {text.order}
                 </button>
-                <p className="mt-3 text-center text-sm text-slate-500">
-                  Nemokamas atsiėmimas Telšiuose; siuntimas +2 € (nuo 3 vnt. – nemokamai)
-                </p>
+                <p className="mt-3 text-center text-sm text-slate-500">{text.shippingNote}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {activeModel && <Modal model={activeModel} onClose={() => setActiveModel(null)} />}
+      {activeModel && <Modal model={activeModel} text={text} onClose={() => setActiveModel(null)} />}
 
       {checkoutModel && (
         <CheckoutModal
+          market={market}
           calculatorId={checkoutModel.id}
           calculatorName={checkoutModel.name}
           onClose={closeCheckout}

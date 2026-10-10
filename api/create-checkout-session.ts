@@ -14,9 +14,12 @@ const SHIPPING_METHOD_LABELS: Record<string, string> = {
   'pickup-telsiai': 'Atsiėmimas Telšiuose',
   'lp-express': 'LP Express paštomatas',
   post: 'Paštas',
+  unisend: 'Unisend pakomāts',
+  omniva: 'Omniva pakomāts',
 };
 
-type ShippingMethod = 'pickup-telsiai' | 'lp-express' | 'post';
+type ShippingMethod = 'pickup-telsiai' | 'lp-express' | 'post' | 'unisend' | 'omniva';
+type CheckoutLocale = 'lt' | 'lv';
 
 type TerminalPayload = {
   id: string;
@@ -44,7 +47,9 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonePattern = /^\+?[0-9\s\-()]{8,20}$/;
 const priceIdPattern = /^price_[A-Za-z0-9]+$/;
 const shippingRatePattern = /^shr_[A-Za-z0-9]+$/;
-const SHIPPING_METHODS: ShippingMethod[] = ['pickup-telsiai', 'lp-express', 'post'];
+const LT_SHIPPING_METHODS: ShippingMethod[] = ['pickup-telsiai', 'lp-express', 'post'];
+const LV_SHIPPING_METHODS: ShippingMethod[] = ['unisend', 'omniva'];
+const SHIPPING_METHODS: ShippingMethod[] = [...LT_SHIPPING_METHODS, ...LV_SHIPPING_METHODS];
 
 function isShippingMethod(value: string): value is ShippingMethod {
   return SHIPPING_METHODS.includes(value as ShippingMethod);
@@ -68,7 +73,20 @@ function buildDeliverySummary(
   if (shippingMethod === 'lp-express' && terminal) {
     return `LP Express ${terminal.city} (${terminal.code}), ${terminal.address}`;
   }
+  if ((shippingMethod === 'unisend' || shippingMethod === 'omniva') && terminal) {
+    const brand = shippingMethod === 'unisend' ? 'Unisend' : 'Omniva';
+    const place = terminal.name ? `${terminal.name}, ${terminal.address}` : terminal.address;
+    return `${brand} ${terminal.city} (${terminal.code}), ${place}`;
+  }
   return SHIPPING_METHOD_LABELS[shippingMethod] ?? shippingMethod;
+}
+
+function readLocale(value: unknown): CheckoutLocale {
+  return value === 'lv' ? 'lv' : 'lt';
+}
+
+function checkoutError(locale: CheckoutLocale, lithuanian: string, latvian: string): string {
+  return locale === 'lv' ? latvian : lithuanian;
 }
 
 function readQuantity(value: unknown): number {
@@ -107,42 +125,61 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       terminal?: TerminalPayload;
       postalAddress?: PostalAddressPayload;
       recipient?: RecipientPayload;
+      locale?: string;
     };
 
+    const locale = readLocale(body.locale);
     const { calculatorId, shippingMethod, terminal, postalAddress, recipient } = body;
     const quantity = readQuantity(body.quantity);
     const priceId = calculatorId ? CALCULATOR_PRICES[calculatorId]?.trim() : undefined;
 
     if (!calculatorId || !priceId) {
-      return res.status(400).json({ error: 'Invalid calculator' });
+      return res.status(400).json({ error: checkoutError(locale, 'Invalid calculator', 'Nederīgs kalkulators') });
     }
 
     if (!priceIdPattern.test(priceId)) {
-      return res.status(500).json({ error: 'Skaičiuotuvo kaina nėra sukonfigūruota' });
+      return res.status(500).json({
+        error: checkoutError(locale, 'Skaičiuotuvo kaina nėra sukonfigūruota', 'Kalkulatora cena nav konfigurēta'),
+      });
     }
 
     if (quantity < 1 || quantity > 99) {
-      return res.status(400).json({ error: 'Netinkamas vienetų skaičius' });
+      return res.status(400).json({
+        error: checkoutError(locale, 'Netinkamas vienetų skaičius', 'Nederīgs vienību skaits'),
+      });
     }
 
-    if (!shippingMethod || !isShippingMethod(shippingMethod)) {
-      return res.status(400).json({ error: 'Pasirinkite siuntimo būdą' });
+    const allowedMethods = locale === 'lv' ? LV_SHIPPING_METHODS : LT_SHIPPING_METHODS;
+    if (!shippingMethod || !isShippingMethod(shippingMethod) || !allowedMethods.includes(shippingMethod)) {
+      return res.status(400).json({
+        error: checkoutError(locale, 'Pasirinkite siuntimo būdą', 'Izvēlieties piegādes veidu'),
+      });
     }
 
     if (!recipient?.firstName?.trim() || !recipient?.lastName?.trim()) {
-      return res.status(400).json({ error: 'Įveskite gavėjo vardą ir pavardę' });
+      return res.status(400).json({
+        error: checkoutError(locale, 'Įveskite gavėjo vardą ir pavardę', 'Ievadiet saņēmēja vārdu un uzvārdu'),
+      });
     }
 
     if (!recipient.phone?.trim() || !phonePattern.test(recipient.phone.trim())) {
-      return res.status(400).json({ error: 'Įveskite teisingą telefono numerį' });
+      return res.status(400).json({
+        error: checkoutError(locale, 'Įveskite teisingą telefono numerį', 'Ievadiet pareizu tālruņa numuru'),
+      });
     }
 
     if (!recipient.email?.trim() || !emailPattern.test(recipient.email.trim())) {
-      return res.status(400).json({ error: 'Įveskite teisingą el. paštą' });
+      return res.status(400).json({
+        error: checkoutError(locale, 'Įveskite teisingą el. paštą', 'Ievadiet pareizu e-pastu'),
+      });
     }
 
     if (shippingMethod === 'lp-express' && (!terminal?.id || !terminal.city || !terminal.address)) {
       return res.status(400).json({ error: 'Pasirinkite LP Express paštomatą' });
+    }
+
+    if ((shippingMethod === 'unisend' || shippingMethod === 'omniva') && (!terminal?.id || !terminal.city || !terminal.address)) {
+      return res.status(400).json({ error: 'Izvēlieties pakomātu' });
     }
 
     if (shippingMethod === 'post') {
@@ -153,10 +190,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const needsShippingRate = shippingFeeApplies(quantity, shippingMethod);
     const shippingRateId = (process.env.STRIPE_SHIPPING_RATE ?? process.env.STRIPE_PRICE_SHIPPING)?.trim();
-    if (needsShippingRate && !shippingRateId) {
+    if (locale === 'lt' && needsShippingRate && !shippingRateId) {
       return res.status(500).json({ error: 'Siuntimo tarifas nėra sukonfigūruotas' });
     }
-    if (needsShippingRate && shippingRateId && !shippingRatePattern.test(shippingRateId)) {
+    if (locale === 'lt' && needsShippingRate && shippingRateId && !shippingRatePattern.test(shippingRateId)) {
       return res.status(500).json({
         error: 'Siuntimo tarifas sukonfigūruotas neteisingai. Reikia Stripe shipping rate (shr_...), ne kainos ID.',
       });
@@ -188,7 +225,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       deliverySummary: deliverySummary.slice(0, 500),
     };
 
-    if (shippingMethod === 'lp-express' && terminal) {
+    if (locale === 'lv') {
+      orderMetadata.market = 'lv';
+    }
+
+    if ((shippingMethod === 'lp-express' || shippingMethod === 'unisend' || shippingMethod === 'omniva') && terminal) {
       orderMetadata.terminalId = terminal.id;
       orderMetadata.terminalCode = terminal.code;
       orderMetadata.terminalCity = terminal.city;
@@ -203,20 +244,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const orderDescription = [
+      locale === 'lv' ? 'Latvija' : '',
       calculatorName,
       `${quantity} vnt.`,
       shippingLabel,
       `Gavėjas: ${recipientName}, ${phone}, ${email}`,
       deliverySummary,
-    ].join(' | ');
+    ]
+      .filter(Boolean)
+      .join(' | ');
 
+    const returnPath = locale === 'lv' ? '/lv/kalkulatori' : '/skaiciuotuvai';
     const params = new URLSearchParams();
     params.append('mode', 'payment');
     params.append('customer_email', email);
     params.append('line_items[0][price]', priceId);
     params.append('line_items[0][quantity]', String(quantity));
-    params.append('success_url', `${origin}/skaiciuotuvai?success=true`);
-    params.append('cancel_url', `${origin}/skaiciuotuvai?canceled=true`);
+    if (locale === 'lv') {
+      params.append('locale', 'lv');
+    }
+    params.append('success_url', `${origin}${returnPath}?success=true`);
+    params.append('cancel_url', `${origin}${returnPath}?canceled=true`);
     params.append('payment_intent_data[description]', orderDescription.slice(0, 1000));
 
     for (const [key, value] of Object.entries(orderMetadata)) {
@@ -225,7 +273,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       params.append(`payment_intent_data[metadata][${key}]`, value);
     }
 
-    if (needsShippingRate && shippingRateId) {
+    if (locale === 'lv' && needsShippingRate) {
+      params.append('shipping_options[0][shipping_rate_data][type]', 'fixed_amount');
+      params.append('shipping_options[0][shipping_rate_data][display_name]', 'Piegāde');
+      params.append('shipping_options[0][shipping_rate_data][fixed_amount][amount]', '200');
+      params.append('shipping_options[0][shipping_rate_data][fixed_amount][currency]', 'eur');
+    } else if (needsShippingRate && shippingRateId) {
       params.append('shipping_options[0][shipping_rate]', shippingRateId);
     }
 
@@ -246,12 +299,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!stripeResponse.ok || !stripeBody.url) {
       const param = stripeBody.error?.param ?? '';
       if (param.includes('shipping_rate')) {
-        return res.status(500).json({ error: 'Siuntimo tarifas Stripe sistemoje netinka. Patikrinkite STRIPE_SHIPPING_RATE.' });
+        return res.status(500).json({
+          error: checkoutError(
+            locale,
+            'Siuntimo tarifas Stripe sistemoje netinka. Patikrinkite STRIPE_SHIPPING_RATE.',
+            'Piegādes tarifs Stripe sistēmā neder.',
+          ),
+        });
       }
       if (param.includes('price')) {
-        return res.status(500).json({ error: 'Skaičiuotuvo kainos ID Stripe sistemoje netinka.' });
+        return res.status(500).json({
+          error: checkoutError(
+            locale,
+            'Skaičiuotuvo kainos ID Stripe sistemoje netinka.',
+            'Kalkulatora cenas ID Stripe sistēmā neder.',
+          ),
+        });
       }
-      return res.status(500).json({ error: 'Nepavyko pradėti apmokėjimo' });
+      return res.status(500).json({
+        error: checkoutError(locale, 'Nepavyko pradėti apmokėjimo', 'Neizdevās sākt maksājumu'),
+      });
     }
 
     return res.status(200).json({ url: stripeBody.url });

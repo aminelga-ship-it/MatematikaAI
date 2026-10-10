@@ -5,7 +5,7 @@ export const CALCULATOR_UNIT_PRICE_EUR: Record<string, number> = {
   'fx-991-ex': 29.99,
 };
 
-/** Siuntimas: 1–2 vnt. – 2 € (LP / paštas); nuo 3 vnt. – nemokamai; atsiėmimas – visada 0 €. */
+/** Siuntimas: 1–2 vnt. – 2 € (LP, paštas, Unisend, Omniva); nuo 3 vnt. – nemokamai; atsiėmimas – visada 0 €. */
 export function shippingFeeEur(quantity: number, shippingMethod: ShippingMethod): number {
   if (shippingMethod === 'pickup-telsiai') return 0;
   if (quantity >= 3) return 0;

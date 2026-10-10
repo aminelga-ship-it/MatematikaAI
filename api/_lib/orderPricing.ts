@@ -1,4 +1,4 @@
-export type ShippingMethod = 'pickup-telsiai' | 'lp-express' | 'post';
+export type ShippingMethod = 'pickup-telsiai' | 'lp-express' | 'post' | 'unisend' | 'omniva';
 
 export function shippingFeeEur(quantity: number, shippingMethod: ShippingMethod): number {
   if (shippingMethod === 'pickup-telsiai') return 0;

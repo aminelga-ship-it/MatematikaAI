@@ -65,6 +65,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<MainPages />} />
           <Route path="/skaiciuotuvai" element={<Calculators />} />
+          <Route path="/lv/kalkulatori" element={<Calculators market="lv" />} />
           <Route path="/statistika" element={<VisitStats />} />
           <Route path="/ekrano-rasiklis/raktas" element={<EkranoRasiklisLicense />} />
           <Route path="/ekrano-rasiklis" element={<EkranoRasiklis />} />

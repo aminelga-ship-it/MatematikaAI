@@ -1,4 +1,4 @@
-export type ShippingMethod = 'pickup-telsiai' | 'lp-express' | 'post';
+export type ShippingMethod = 'pickup-telsiai' | 'lp-express' | 'post' | 'unisend' | 'omniva';
 
 export type PostalAddress = {
   street: string;
@@ -34,8 +34,30 @@ export const SHIPPING_OPTIONS: {
   },
 ];
 
+export const LV_SHIPPING_OPTIONS: {
+  id: ShippingMethod;
+  label: string;
+  priceEur: number;
+  description: string;
+}[] = [
+  {
+    id: 'unisend',
+    label: 'Sūtīt uz Unisend pakomātu',
+    priceEur: 2,
+    description: 'Piegāde uz izvēlēto Unisend pakomātu.',
+  },
+  {
+    id: 'omniva',
+    label: 'Sūtīt uz Omniva pakomātu',
+    priceEur: 2,
+    description: 'Piegāde uz izvēlēto Omniva pakomātu.',
+  },
+];
+
 export const SHIPPING_METHOD_LABELS: Record<ShippingMethod, string> = {
   'pickup-telsiai': 'Atsiėmimas Telšiuose',
   'lp-express': 'LP Express paštomatas',
   post: 'Paštas',
+  unisend: 'Unisend pakomāts',
+  omniva: 'Omniva pakomāts',
 };

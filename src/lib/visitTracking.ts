@@ -26,7 +26,12 @@ function isStatsPath(pathname: string): boolean {
 }
 
 function isCalculatorPath(pathname: string): boolean {
-  return pathname === '/skaiciuotuvai' || pathname.startsWith('/skaiciuotuvai/');
+  return (
+    pathname === '/skaiciuotuvai' ||
+    pathname.startsWith('/skaiciuotuvai/') ||
+    pathname === '/lv/kalkulatori' ||
+    pathname.startsWith('/lv/kalkulatori/')
+  );
 }
 
 function sectionForPath(pathname: string): SectionLabel | null {

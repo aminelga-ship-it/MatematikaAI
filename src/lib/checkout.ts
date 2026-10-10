@@ -12,11 +12,18 @@ export async function createCheckoutSession(payload: CheckoutPayload): Promise<s
   try {
     data = text ? (JSON.parse(text) as { url?: string; error?: string }) : {};
   } catch {
-    throw new Error('Nepavyko pradėti apmokėjimo. Bandykite dar kartą.');
+    throw new Error(
+      payload.locale === 'lv'
+        ? 'Neizdevās sākt maksājumu. Mēģiniet vēlreiz.'
+        : 'Nepavyko pradėti apmokėjimo. Bandykite dar kartą.',
+    );
   }
 
   if (!response.ok || !data.url) {
-    throw new Error(data.error ?? 'Nepavyko pradėti apmokėjimo');
+    throw new Error(
+      data.error ??
+        (payload.locale === 'lv' ? 'Neizdevās sākt maksājumu' : 'Nepavyko pradėti apmokėjimo'),
+    );
   }
 
   return data.url;

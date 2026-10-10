@@ -15,4 +15,5 @@ export type CheckoutPayload = {
   recipient: RecipientInfo;
   terminal?: LpExpressTerminal;
   postalAddress?: PostalAddress;
+  locale?: 'lv';
 };

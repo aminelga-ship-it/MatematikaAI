@@ -14,6 +14,45 @@ export default defineConfig({
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
           const pathname = (req.url ?? '').split('?')[0];
+          if (pathname === '/api/lv-terminals') {
+            void (async () => {
+              try {
+                const lockers = (await server.ssrLoadModule(
+                  '/api/_lib/lvLockers.ts',
+                )) as typeof import('./api/_lib/lvLockers');
+                const requestUrl = new URL(req.url ?? '', 'http://localhost');
+                const carrier = requestUrl.searchParams.get('carrier');
+                if (req.method !== 'GET') {
+                  res.statusCode = 405;
+                  res.setHeader('Content-Type', 'application/json');
+                  res.end(JSON.stringify({ error: 'Method not allowed' }));
+                  return;
+                }
+                if (!lockers.isLockerCarrier(carrier)) {
+                  res.statusCode = 400;
+                  res.setHeader('Content-Type', 'application/json');
+                  res.end(JSON.stringify({ error: 'Unknown carrier' }));
+                  return;
+                }
+                const terminals = await lockers.lockersByCity(carrier);
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.setHeader('Cache-Control', 'public, max-age=3600');
+                res.end(JSON.stringify({ terminals }));
+              } catch (error) {
+                res.statusCode = 500;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(
+                  JSON.stringify({
+                    error: 'Neizdevās ielādēt pakomātus',
+                    message: error instanceof Error ? error.message : 'error',
+                  }),
+                );
+              }
+            })();
+            return;
+          }
+
           if (pathname !== '/api/analytics') {
             next();
             return;
