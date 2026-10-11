@@ -131,10 +131,7 @@ const lvModels: CalculatorModel[] = [
     summary:
       'Kalkulatoram būtībā ir visas skolā vajadzīgās funkcijas, izņemot nevienādību risināšanu. Zemākas cenas galvenais iemesls ir nedaudz vājāks procesors (tāpēc ļoti sarežģītus aprēķinus tas veic ar 5–10 sekunžu aizturi) un vienkāršāks ekrāns.',
     recommendation: 'Ieteicams tiem, kas vēlas ietaupīt, jo saņemat aptuveni 99% funkciju par zemāku cenu',
-    modalImages: [
-      { src: '/images/ES_meniu.png', alt: 'Izvēlne' },
-      { src: '/images/ES_gidas.png', alt: 'Gids' },
-    ],
+    modalImages: [{ src: '/images/ES_meniu.png', alt: 'Izvēlne' }],
     features: {
       qrInstructions: true,
       qrTheory: false,
