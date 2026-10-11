@@ -127,7 +127,7 @@ const lvModels: CalculatorModel[] = [
     name: 'FX-991 ES 2nd edition',
     price: '24,99€',
     coverImage: '/images/ES.png',
-    priceCompareUrl: 'https://www.salidzini.lv/cena?q=casio+fx-991es+plus',
+    priceCompareUrl: 'https://www.kurpirkt.lv/cena.php?q=casio+fx+991es',
     summary:
       'Kalkulatoram būtībā ir visas skolā vajadzīgās funkcijas, izņemot nevienādību risināšanu. Zemākas cenas galvenais iemesls ir nedaudz vājāks procesors (tāpēc ļoti sarežģītus aprēķinus tas veic ar 5–10 sekunžu aizturi) un vienkāršāks ekrāns.',
     recommendation: 'Ieteicams tiem, kas vēlas ietaupīt, jo saņemat aptuveni 99% funkciju par zemāku cenu',
@@ -155,7 +155,7 @@ const lvModels: CalculatorModel[] = [
     price: '29,99€',
     recommended: true,
     coverImage: '/images/EX.png',
-    priceCompareUrl: 'https://www.salidzini.lv/cena?q=casio+fx-991ex',
+    priceCompareUrl: 'https://www.kurpirkt.lv/cena.php?q=casio+fx+991+x',
     summary: 'Jaudīgākais no šiem diviem kalkulatoriem — ar ātrāku darbību, labāku ekrānu un nevienādību risināšanu.',
     recommendation: 'Ieteicams tiem, kam ietaupīt 5 eiro nav būtiski',
     modalImages: [
